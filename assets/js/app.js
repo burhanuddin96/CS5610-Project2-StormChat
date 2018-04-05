@@ -18,6 +18,10 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
+// import socket from "./socket";
+// let channel = socket.channel("games:" + window.gameName, {});
+// run_reversi(root, channel);
+
 import store from './store';
 import stormchat_init from "./cs/stormchat";
 

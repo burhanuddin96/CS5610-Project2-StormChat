@@ -31,7 +31,3 @@ let Stormchat = connect((state) => state)((props) => {
     </Router>
   );
 });
-
-// import socket from "./socket";
-// let channel = socket.channel("games:" + window.gameName, {});
-// run_reversi(root, channel);
