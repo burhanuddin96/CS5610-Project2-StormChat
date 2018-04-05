@@ -1,4 +1,4 @@
-# Stormchat
+# CS5610-Project2-Stormchat
 
 To start your Phoenix server:
 
