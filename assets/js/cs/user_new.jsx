@@ -44,7 +44,7 @@ function UserNew(props) {
           onChange={update} />
       </FormGroup>
       <FormGroup>
-        <Label for="phone">email:</Label>
+        <Label for="phone">phone:</Label>
         <Input name="phone" value={props.new_user_form.phone}
           onChange={update} />
       </FormGroup>
