@@ -26,6 +26,8 @@ defmodule StormchatWeb.Router do
     pipe_through :api
 
     resources "/users", UserController, except: [:new, :edit]
+    resources "/alerts", AlertController, except: [:new, :edit]
+    resources "/counties", CountyController, except: [:new, :edit]
     post "/token", TokenController, :create
   end
 end

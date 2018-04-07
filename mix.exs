@@ -42,7 +42,10 @@ defmodule Stormchat.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
-      {:argon2_elixir, "~> 1.2"},    ]
+      {:argon2_elixir, "~> 1.2"},
+      {:httpoison, "~> 0.13"},
+      {:poison, "~> 3.1"}
+    ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
