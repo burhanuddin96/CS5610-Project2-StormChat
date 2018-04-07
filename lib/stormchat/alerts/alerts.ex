@@ -17,24 +17,19 @@ defmodule Stormchat.Alerts do
 
   alias Stormchat.Alerts.Alert
 
-
+  def inspect_feed() do
+    IO.inspect(get_atom_feed)
+  end
 
   def get_atom_feed() do
     resp = HTTPoison.get!("https://alerts.weather.gov/cap/us.php?x=0")
-    xml_string = to_charlist(resp.body)
-    {xml_doc, _rest} = :xmerl_scan.string(xml_string)
-    xml_doc
-  end
 
-  def get_and_parse_atom_feed() do
-    entries = :xmerl_xpath.string('//entry', get_atom_feed())
-    maps = Enum.map(entries, fn (xe) -> xml_to_map(xe) end)
-    Enum.each(maps, fn (mm) -> IO.inspect(mm) end)
+    {xml_doc, _rest} = resp.body
+      |> to_charlist()
+      |> :xmerl_scan.string()
 
-    # :xmerl_xpath.string('//entry/title', get_atom_feed())
-    # |> Enum.map(fn (xe) -> xmlElement(xe, :content) end)
-    # |> Enum.map(fn ([{_, _, _, _, text, _}]) -> text end)
-    # |> Enum.each(fn (tt) -> IO.puts(tt) end)
+    :xmerl_xpath.string('//entry', xml_doc)
+    |> Enum.map(fn (xe) -> xml_to_map(xe) end)
   end
 
   def xml_to_map(xml_entry) do
