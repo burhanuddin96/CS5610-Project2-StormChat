@@ -27,13 +27,22 @@ defmodule Stormchat.Alerts do
   end
 
   def get_and_parse_atom_feed() do
-    :xmerl_xpath.string('//entry/title', get_atom_feed())
-    |> Enum.map(fn (xe) -> xmlElement(xe, :content) end)
-    |> Enum.map(fn ([{_, _, _, _, text, _}]) -> text end)
-    |> Enum.each(fn (tt) -> IO.puts(tt) end)
-    # xmlElement(xe, :content)
+    entries = :xmerl_xpath.string('//entry', get_atom_feed())
+    maps = Enum.map(entries, fn (xe) -> xml_to_map(xe) end)
+    Enum.each(maps, fn (mm) -> IO.inspect(mm) end)
+
+    # :xmerl_xpath.string('//entry/title', get_atom_feed())
+    # |> Enum.map(fn (xe) -> xmlElement(xe, :content) end)
+    # |> Enum.map(fn ([{_, _, _, _, text, _}]) -> text end)
+    # |> Enum.each(fn (tt) -> IO.puts(tt) end)
   end
 
+  def xml_to_map(xml_entry) do
+    xmlElement(xml_entry, :content)
+    |> Enum.filter(fn(rr) -> Record.is_record(rr, :xmlElement) end)
+    |> Enum.filter(fn(rr) -> Record.is_record(List.first(xmlElement(rr, :content)), :xmlText) end)
+    |> Enum.reduce(%{}, fn (xe, acc) -> Map.put(acc, xmlElement(xe, :name), xmlText(List.first(xmlElement(xe, :content)), :value)) end)
+  end
 
 
   @doc """
