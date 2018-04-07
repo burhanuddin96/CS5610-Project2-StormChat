@@ -1,0 +1,1 @@
+<div><b><%= @message.user %>:</b>&nbsp<i><%= @message.content %></i></div>
