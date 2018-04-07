@@ -3,6 +3,15 @@ defmodule Stormchat.Alerts do
   The Alerts context.
   """
 
+  # http://davekuhlman.org/static/search_xml05.ex
+  require Record
+  Record.defrecord :xmlElement,
+    Record.extract(:xmlElement, from_lib: "xmerl/include/xmerl.hrl")
+  Record.defrecord :xmlText,
+    Record.extract(:xmlText, from_lib: "xmerl/include/xmerl.hrl")
+  Record.defrecord :xmlAttribute,
+    Record.extract(:xmlAttribute, from_lib: "xmerl/include/xmerl.hrl")
+
   import Ecto.Query, warn: false
   alias Stormchat.Repo
 
@@ -12,11 +21,17 @@ defmodule Stormchat.Alerts do
 
   def get_atom_feed() do
     resp = HTTPoison.get!("https://alerts.weather.gov/cap/us.php?x=0")
-    IO.puts(resp)
+    xml_string = to_charlist(resp.body)
+    {xml_doc, _rest} = :xmerl_scan.string(xml_string)
+    xml_doc
   end
 
-  def parse_atom_feed(feed) do
-
+  def get_and_parse_atom_feed() do
+    :xmerl_xpath.string('//entry/title', get_atom_feed())
+    |> Enum.map(fn (xe) -> xmlElement(xe, :content) end)
+    |> Enum.map(fn ([{_, _, _, _, text, _}]) -> text end)
+    |> Enum.each(fn (tt) -> IO.puts(tt) end)
+    # xmlElement(xe, :content)
   end
 
 
