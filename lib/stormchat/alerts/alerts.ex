@@ -33,11 +33,17 @@ defmodule Stormchat.Alerts do
 
   # gets a list of maps, each representing an alert from the NWS ATOM feed
   def get_atom_feed() do
-    resp = HTTPoison.get!("https://alerts.weather.gov/cap/us.php?x=0")
-    xml_doc = http_to_xml(resp)
+    {msg, resp} = HTTPoison.get("https://alerts.weather.gov/cap/us.php?x=0")
 
-    :xmerl_xpath.string('//entry', xml_doc)
-    |> Enum.map(fn (xe) -> xml_to_map(xe) end)
+    case msg do
+      :error ->
+        IO.puts("http error getting atom feed")
+        IO.inspect(resp)
+        get_atom_feed()
+      :ok ->
+        :xmerl_xpath.string('//entry', http_to_xml(resp))
+        |> Enum.map(fn (xe) -> xml_to_map(xe) end)
+    end
   end
 
   # converts an xml entry element to a map
@@ -93,29 +99,36 @@ defmodule Stormchat.Alerts do
   # notifies affected users
   def complete_and_notify(new_entry_map) do
     # get the cap response
-    resp = HTTPoison.get!(new_entry_map[:identifier])
+    {msg, resp} = HTTPoison.get(new_entry_map[:identifier])
 
-    # convert the cap response to xml
-    xml_doc = http_to_xml(resp)
+    case msg do
+      :error ->
+        IO.puts("http error getting cap feed")
+        IO.inspect(resp)
+        complete_and_notify(new_entry_map)
+      :ok ->
+        # convert the cap response to xml
+        xml_doc = http_to_xml(resp)
 
-    # get the description and instruction elements
-    [description | _rest] = :xmerl_xpath.string('//description', xml_doc)
-    [instruction | _rest] = :xmerl_xpath.string('//instruction', xml_doc)
+        # get the description and instruction elements
+        [description | _rest] = :xmerl_xpath.string('//description', xml_doc)
+        [instruction | _rest] = :xmerl_xpath.string('//instruction', xml_doc)
 
-    # insert the description and instruction into the new entry map
-    new_entry_map
-    |> Map.put(:description, to_string(xmlText(List.first(xmlElement(description, :content)), :value)))
-    |> Map.put(:instruction, get_instruction_string(instruction))
-    |> create_alert()
+        # insert the description and instruction into the new entry map
+        new_entry_map
+        |> Map.put(:description, to_string(xmlText(List.first(xmlElement(description, :content)), :value)))
+        |> Map.put(:instruction, get_instruction_string(instruction))
+        |> create_alert()
 
-    # get the record id of the newly created alert
-    alert_id = get_alert_id_by_identifier(new_entry_map[:identifier])
+        # get the record id of the newly created alert
+        alert_id = get_alert_id_by_identifier(new_entry_map[:identifier])
 
-    # - get all fips codes, insert new country record per code, notify affected users
-    :xmerl_xpath.string('//geocode', xml_doc)
-    |> Enum.filter(fn(gc) -> is_fips(gc) end)
-    |> Enum.map(fn(gc) -> get_code(gc) end)
-    |> Enum.each(fn(fips) -> insert_and_notify(alert_id, fips) end)
+        # - get all fips codes, insert new country record per code, notify affected users
+        :xmerl_xpath.string('//geocode', xml_doc)
+        |> Enum.filter(fn(gc) -> is_fips(gc) end)
+        |> Enum.map(fn(gc) -> get_code(gc) end)
+        |> Enum.each(fn(fips) -> insert_and_notify(alert_id, fips) end)
+    end
   end
 
   def get_code(geocode) do
