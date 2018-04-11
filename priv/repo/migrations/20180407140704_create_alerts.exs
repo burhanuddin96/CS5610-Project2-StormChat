@@ -12,7 +12,7 @@ defmodule Stormchat.Repo.Migrations.CreateAlerts do
       add :urgency, :string, null: false
       add :severity, :string, null: false
       add :certainty, :string, null: false
-      add :areaDesc, :string, null: false
+      add :areaDesc, :text, null: false
       add :description, :text, null: false
       add :instruction, :text, null: false
 
