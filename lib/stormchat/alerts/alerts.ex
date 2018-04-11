@@ -21,10 +21,6 @@ defmodule Stormchat.Alerts do
 
   alias Stormchat.Alerts.Alert
 
-  def inspect_feed() do
-    IO.inspect(get_atom_feed())
-  end
-
   def update do
     get_atom_feed()
     |> filter_old()
