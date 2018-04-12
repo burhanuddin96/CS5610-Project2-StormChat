@@ -74,6 +74,8 @@ defmodule Stormchat.Alerts do
 
   # converts an http response to xml
   def http_to_xml(resp) do
+    IO.inspect(resp)
+
     {xml_doc, _rest} =
       resp.body
       |> to_charlist()
@@ -85,7 +87,7 @@ defmodule Stormchat.Alerts do
   def get_instruction_string(instruction_element) do
     case xmlElement(instruction_element, :content) do
       [] -> "none"
-      [first | rest] -> to_string(xmlText(first, :value))
+      [first | _rest] -> to_string(xmlText(first, :value))
     end
   end
 
@@ -107,13 +109,22 @@ defmodule Stormchat.Alerts do
         xml_doc = http_to_xml(resp)
 
         # get the description and instruction elements
-        [description | _rest] = :xmerl_xpath.string('//description', xml_doc)
-        [instruction | _rest] = :xmerl_xpath.string('//instruction', xml_doc)
+        dscrpt =
+          case :xmerl_xpath.string('//description', xml_doc) do
+            [description | _rest] -> to_string(xmlText(List.first(xmlElement(description, :content)), :value))
+            _error -> ""
+          end
+
+        nstrct =
+          case :xmerl_xpath.string('//instruction', xml_doc) do
+            [instruction | _rest] -> get_instruction_string(instruction)
+            _error -> ""
+          end
 
         # insert the description and instruction into the new entry map
         new_entry_map
-        |> Map.put(:description, to_string(xmlText(List.first(xmlElement(description, :content)), :value)))
-        |> Map.put(:instruction, get_instruction_string(instruction))
+        |> Map.put(:description, dscrpt)
+        |> Map.put(:instruction, nstrct)
         |> create_alert()
 
         # get the record id of the newly created alert
@@ -121,7 +132,7 @@ defmodule Stormchat.Alerts do
 
         # - get all fips codes, insert new country record per code, notify affected users
         :xmerl_xpath.string('//geocode', xml_doc)
-        |> Enum.filter(fn(gc) -> is_fips(gc) end)
+        |> Enum.filter(fn(gc) -> is_and_has_fips(gc) end)
         |> Enum.map(fn(gc) -> get_code(gc) end)
         |> Enum.each(fn(fips) -> insert_and_notify(alert_id, fips) end)
     end
@@ -132,24 +143,33 @@ defmodule Stormchat.Alerts do
       xmlElement(geocode, :content)
       |> Enum.filter(fn(rr) -> Record.is_record(rr, :xmlElement) end)
 
+    IO.inspect(value)
+
     to_string(xmlText(List.first(xmlElement(value, :content)), :value))
   end
 
-  def is_fips(geocode) do
-    [valueName | _rest] =
+  # returns whether the geocode is and has a fips code
+  def is_and_has_fips(geocode) do
+    [valueName | [value | _rest]] =
       xmlElement(geocode, :content)
       |> Enum.filter(fn(rr) -> Record.is_record(rr, :xmlElement) end)
 
-    xmlText(List.first(xmlElement(valueName, :content)), :value) == 'FIPS6'
+    valueName_content = xmlElement(valueName, :content)
+    value_content = xmlElement(value, :content)
+
+    # guard against non-fips valueNames and empty fips values
+    valueName_content != []
+      && value_content != []
+      && xmlText(List.first(valueName_content), :value) == 'FIPS6'
   end
 
   def insert_and_notify(alert_id, fips) do
-    {_msg, county} = create_county(%{alert_id: alert_id, fips_code: fips})
-    notify(county)
+    create_county(%{alert_id: alert_id, fips_code: fips})
+    notify(fips)
   end
 
   # "TODO: send notifications to users with saved locations in the given county
-  def notify(county) do
+  def notify(fips) do
 
   end
 

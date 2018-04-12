@@ -66,4 +66,64 @@ defmodule Stormchat.LocationsTest do
       assert %Ecto.Changeset{} = Locations.change_location(location)
     end
   end
+
+  describe "location_counties" do
+    alias Stormchat.Locations.LocationCounty
+
+    @valid_attrs %{fips_code: "some fips_code"}
+    @update_attrs %{fips_code: "some updated fips_code"}
+    @invalid_attrs %{fips_code: nil}
+
+    def location_county_fixture(attrs \\ %{}) do
+      {:ok, location_county} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Locations.create_location_county()
+
+      location_county
+    end
+
+    test "list_location_counties/0 returns all location_counties" do
+      location_county = location_county_fixture()
+      assert Locations.list_location_counties() == [location_county]
+    end
+
+    test "get_location_county!/1 returns the location_county with given id" do
+      location_county = location_county_fixture()
+      assert Locations.get_location_county!(location_county.id) == location_county
+    end
+
+    test "create_location_county/1 with valid data creates a location_county" do
+      assert {:ok, %LocationCounty{} = location_county} = Locations.create_location_county(@valid_attrs)
+      assert location_county.fips_code == "some fips_code"
+    end
+
+    test "create_location_county/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Locations.create_location_county(@invalid_attrs)
+    end
+
+    test "update_location_county/2 with valid data updates the location_county" do
+      location_county = location_county_fixture()
+      assert {:ok, location_county} = Locations.update_location_county(location_county, @update_attrs)
+      assert %LocationCounty{} = location_county
+      assert location_county.fips_code == "some updated fips_code"
+    end
+
+    test "update_location_county/2 with invalid data returns error changeset" do
+      location_county = location_county_fixture()
+      assert {:error, %Ecto.Changeset{}} = Locations.update_location_county(location_county, @invalid_attrs)
+      assert location_county == Locations.get_location_county!(location_county.id)
+    end
+
+    test "delete_location_county/1 deletes the location_county" do
+      location_county = location_county_fixture()
+      assert {:ok, %LocationCounty{}} = Locations.delete_location_county(location_county)
+      assert_raise Ecto.NoResultsError, fn -> Locations.get_location_county!(location_county.id) end
+    end
+
+    test "change_location_county/1 returns a location_county changeset" do
+      location_county = location_county_fixture()
+      assert %Ecto.Changeset{} = Locations.change_location_county(location_county)
+    end
+  end
 end

@@ -11,6 +11,7 @@ defmodule Stormchat.Repo.Migrations.CreateLocations do
       timestamps()
     end
 
+    create unique_index(:locations, [:lat, :long, :user_id])
     create index(:locations, [:user_id])
   end
 end
