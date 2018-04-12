@@ -39,7 +39,6 @@ defmodule Stormchat.Locations do
     end
   end
 
-
   @doc """
   Returns the list of locations.
 
@@ -113,7 +112,8 @@ defmodule Stormchat.Locations do
         |> Enum.each(fn(fc) ->
           IO.write("fips code: ")
           IO.puts(fc)
-          create_location_county(%{user_id: user_id, fips_code: fc})
+          new_lc_resp = create_location_county(%{location_id: location_id, fips_code: fc})
+          IO.inspect(new_lc_resp)
           end)
 
         {msg, changeset}

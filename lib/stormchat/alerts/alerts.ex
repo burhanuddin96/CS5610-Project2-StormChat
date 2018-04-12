@@ -108,17 +108,22 @@ defmodule Stormchat.Alerts do
         # convert the cap response to xml
         xml_doc = http_to_xml(resp)
 
-        # get the description and instruction elements
+        # get the description string, set to "none" if there is no description
         dscrpt =
           case :xmerl_xpath.string('//description', xml_doc) do
             [description | _rest] -> to_string(xmlText(List.first(xmlElement(description, :content)), :value))
-            _error -> ""
+            _error -> "none"
           end
 
+        xpath_result = :xmerl_xpath.string('//instruction', xml_doc)
+
+        IO.inspect(xpath_result)
+
+        # get the instruction string, set to "none" if there is no instruction
         nstrct =
-          case :xmerl_xpath.string('//instruction', xml_doc) do
+          case xpath_result do
             [instruction | _rest] -> get_instruction_string(instruction)
-            _error -> ""
+            _error -> "none"
           end
 
         # insert the description and instruction into the new entry map
