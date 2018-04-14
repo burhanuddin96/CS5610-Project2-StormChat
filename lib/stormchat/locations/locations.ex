@@ -25,7 +25,7 @@ defmodule Stormchat.Locations do
       :ok ->
         {m, r} = Poison.decode(resp.body)
 
-        IO.inspect(r)
+        # IO.inspect(r)
 
         case m do
           :error ->
@@ -110,10 +110,10 @@ defmodule Stormchat.Locations do
         # and create a location_county for each fips code
         get_fips_by_latlong(lat, long)
         |> Enum.each(fn(fc) ->
-          IO.write("fips code: ")
-          IO.puts(fc)
+          # IO.write("fips code: ")
+          # IO.puts(fc)
           new_lc_resp = create_location_county(%{location_id: location_id, fips_code: fc})
-          IO.inspect(new_lc_resp)
+          # IO.inspect(new_lc_resp)
           end)
 
         {msg, changeset}

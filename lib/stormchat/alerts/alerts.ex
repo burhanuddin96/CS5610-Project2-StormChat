@@ -3,10 +3,6 @@ defmodule Stormchat.Alerts do
   The Alerts context.
   """
 
-  #TODO:
-  # - format datetime values properly in entry map
-  # - some string field is too small, expand to text
-
   # http://davekuhlman.org/static/search_xml05.ex
   require Record
   Record.defrecord :xmlElement,
@@ -20,6 +16,9 @@ defmodule Stormchat.Alerts do
   alias Stormchat.Repo
 
   alias Stormchat.Alerts.Alert
+  alias Stormchat.Locations.Location
+  alias Stormchat.Locations.LocationCounty
+  alias Stormchat.Users
 
   def update do
     get_atom_feed()
@@ -74,7 +73,7 @@ defmodule Stormchat.Alerts do
 
   # converts an http response to xml
   def http_to_xml(resp) do
-    IO.inspect(resp)
+    # IO.inspect(resp)
 
     {xml_doc, _rest} =
       resp.body
@@ -117,7 +116,7 @@ defmodule Stormchat.Alerts do
 
         xpath_result = :xmerl_xpath.string('//instruction', xml_doc)
 
-        IO.inspect(xpath_result)
+        # IO.inspect(xpath_result)
 
         # get the instruction string, set to "none" if there is no instruction
         nstrct =
@@ -132,14 +131,37 @@ defmodule Stormchat.Alerts do
         |> Map.put(:instruction, nstrct)
         |> create_alert()
 
-        # get the record id of the newly created alert
-        alert_id = get_alert_id_by_identifier(new_entry_map[:identifier])
+        # get the newly created alert
+        alert = get_alert_by_identifier(new_entry_map[:identifier])
 
-        # - get all fips codes, insert new country record per code, notify affected users
-        :xmerl_xpath.string('//geocode', xml_doc)
-        |> Enum.filter(fn(gc) -> is_and_has_fips(gc) end)
-        |> Enum.map(fn(gc) -> get_code(gc) end)
-        |> Enum.each(fn(fips) -> insert_and_notify(alert_id, fips) end)
+        # get all fips codes, insert new country record per code, notify affected users
+        affected_fips =
+          :xmerl_xpath.string('//geocode', xml_doc)
+          |> Enum.filter(fn(gc) -> is_and_has_fips(gc) end)
+          |> Enum.map(fn(gc) -> get_code(gc) end)
+
+        # for each fips code, insert new country record
+        Enum.each(affected_fips, fn(ff) -> create_county(%{alert_id: alert.id, fips_code: ff}) end)
+
+        # get unique users affected and notify each
+        list_of_user_lists =
+          affected_fips
+            |> Enum.map(fn(ff) ->
+              query = from l in Location,
+                join: c in LocationCounty, on: l.id == c.location_id,
+                where: c.fips_code == ^ff,
+                select: l.user_id
+
+              case Repo.all(query) do
+                nil -> []
+                user_list -> user_list
+              end end)
+
+        affected_users =
+          List.flatten(list_of_user_lists)
+          |> Enum.uniq()
+
+        Enum.each(affected_users, fn(uu) -> notify(uu, alert) end)
     end
   end
 
@@ -148,7 +170,7 @@ defmodule Stormchat.Alerts do
       xmlElement(geocode, :content)
       |> Enum.filter(fn(rr) -> Record.is_record(rr, :xmlElement) end)
 
-    IO.inspect(value)
+    # IO.inspect(value)
 
     to_string(xmlText(List.first(xmlElement(value, :content)), :value))
   end
@@ -168,14 +190,44 @@ defmodule Stormchat.Alerts do
       && xmlText(List.first(valueName_content), :value) == 'FIPS6'
   end
 
-  def insert_and_notify(alert_id, fips) do
-    create_county(%{alert_id: alert_id, fips_code: fips})
-    notify(fips)
+  # creates and returns the notification message body for the given alert
+  # 1600 total character limit broken into 160 character chucks
+  # with each chunk being its own message
+  def message_text(alert) do
+    # TODO: finish composing message text from alert fields
+    alert.title
   end
 
-  # "TODO: send notifications to users with saved locations in the given county
-  def notify(fips) do
+  # notify the given user of the given alert
+  def notify(user_id, alert) do
+    user = Users.get_user(user_id)
+    account = Application.get_env(:stormchat, :twilio_account)
+    key = Application.get_env(:stormchat, :twilio_key)
+    authentication = "Basic " <> Base.encode64(account <> ":" <> key)
 
+    url = "https://api.twilio.com/2010-04-01/Accounts/" <> account <> "/Messages.json"
+
+    body = URI.encode_query([
+      {"To", "+1" <> user.phone},
+      {"From", "+16178706887"},
+      {"Body", message_text(alert)}])
+
+    headers = [{"Authorization", authentication}, {"Content-Type", "application/x-www-form-urlencoded; charset=utf-8"}]
+
+    # IO.inspect(url)
+    # IO.inspect(body)
+    # IO.inspect(headers)
+
+    {m, resp} = HTTPoison.post(url, body, headers)
+
+    case m do
+      :error ->
+        IO.puts("error posting to Twilio API")
+        IO.inspect(resp)
+      :ok ->
+        IO.puts("successful post to Twilio API")
+        # IO.inspect(resp)
+    end
   end
 
   @doc """
@@ -207,13 +259,10 @@ defmodule Stormchat.Alerts do
   """
   def get_alert!(id), do: Repo.get!(Alert, id)
 
+  def get_alert(id), do: Repo.get(Alert, id)
+
   def get_alert_by_identifier(identifier) do
     Repo.get_by(Alert, identifier: identifier)
-  end
-
-  def get_alert_id_by_identifier(identifier) do
-    alert = get_alert_by_identifier(identifier)
-    alert.id
   end
 
   @doc """
