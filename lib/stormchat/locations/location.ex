@@ -16,5 +16,6 @@ defmodule Stormchat.Locations.Location do
     location
     |> cast(attrs, [:lat, :long, :description, :user_id])
     |> validate_required([:lat, :long, :description, :user_id])
+    |> unique_constraint(:lat, name: :locations_lat_long_user_id_index)
   end
 end

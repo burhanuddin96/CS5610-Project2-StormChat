@@ -29,6 +29,7 @@ defmodule StormchatWeb.Router do
     resources "/alerts", AlertController, except: [:new, :edit]
     resources "/counties", CountyController, except: [:new, :edit]
     resources "/locations", LocationController, except: [:new, :edit]
+    resources "/location_counties", LocationCountyController, except: [:new, :edit]
     post "/token", TokenController, :create
   end
 end
