@@ -198,9 +198,7 @@ defmodule Stormchat.Alerts do
     alert.title
   end
 
-  # notify the given user of the given alert
-  def notify(user_id, alert) do
-    user = Users.get_user(user_id)
+  def send_sms(to, text) do
     account = Application.get_env(:stormchat, :twilio_account)
     key = Application.get_env(:stormchat, :twilio_key)
     authentication = "Basic " <> Base.encode64(account <> ":" <> key)
@@ -208,9 +206,9 @@ defmodule Stormchat.Alerts do
     url = "https://api.twilio.com/2010-04-01/Accounts/" <> account <> "/Messages.json"
 
     body = URI.encode_query([
-      {"To", "+1" <> user.phone},
+      {"To", "+1" <> to},
       {"From", "+16178706887"},
-      {"Body", message_text(alert)}])
+      {"Body", text}])
 
     headers = [{"Authorization", authentication}, {"Content-Type", "application/x-www-form-urlencoded; charset=utf-8"}]
 
@@ -228,6 +226,14 @@ defmodule Stormchat.Alerts do
         IO.puts("successful post to Twilio API")
         # IO.inspect(resp)
     end
+  end
+
+  # notify the given user of the given alert
+  def notify(user_id, alert) do
+    user = Users.get_user(user_id)
+    to = user.phone
+    text = message_text(alert)
+    send_sms(to, text)
   end
 
   @doc """
