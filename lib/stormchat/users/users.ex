@@ -7,6 +7,7 @@ defmodule Stormchat.Users do
 
   alias Stormchat.Repo
   alias Stormchat.Users.User
+  alias Stormchat.Alerts
 
   @doc """
   Returns the list of users.
@@ -74,9 +75,22 @@ defmodule Stormchat.Users do
 
   """
   def create_user(attrs \\ %{}) do
-    %User{}
+    {msg, resp} = %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+
+    case msg do
+      :ok ->
+        body = "new user (id:" <> resp.id <> ") needs phone number verified (" <> resp.phone <> ")"
+        Alerts.send_sms("8572721850", body)
+        {msg, resp}
+      :error ->
+        {msg, resp}
+    end
+  end
+
+  def notify_admin() do
+
   end
 
   @doc """
