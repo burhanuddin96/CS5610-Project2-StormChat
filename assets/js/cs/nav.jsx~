@@ -45,8 +45,7 @@ let Session = connect(({edit_user_form}) => {return {edit_user_form};})((props) 
 let Logout = connect((state) => {return {};})((props) => {
   function submit_logout(ev) {
     props.dispatch({
-      type: 'LOG_OUT',
-      msg: "Logged out successfully.",
+      type: 'LOG_OUT'
     });
   }
 
