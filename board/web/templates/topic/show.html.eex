@@ -1,0 +1,37 @@
+<section id="topic-show" class="topic-show"
+    data-topic-id="<%= @topic.id %>" data-channel-id="<%= Board.TopicChannel.id(@topic) %>">
+  <h3 class="section-header"><%= @topic.name %></h3>
+
+  <%= component "post_card.html", post: @topic %>
+
+  <%= for post <- @posts do %>
+    <%= component "post_card.html", post: post %>
+  <% end %>
+</section>
+
+<div class="post-new-wrapper">
+  <section class="post-new">
+    <h4 class"section-header">Add new post</h4>
+
+    <%= form_for @post_changeset, topic_post_path(@conn, :create, @topic), fn f -> %>
+      <%= if @post_changeset.action do %>
+        <div class="alert alert-danger">
+          <p>Oops, something went wrong! Please check the errors below.</p>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= label f, :text, class: "control-label" %>
+        <%= textarea f, :text, class: "form-control" %>
+        <%= error_tag f, :text %>
+      </div>
+
+      <div class="form-group">
+        <%= submit "Submit", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+  </section>
+</div>
+
+<%= link "Edit", to: topic_path(@conn, :edit, @topic) %>
