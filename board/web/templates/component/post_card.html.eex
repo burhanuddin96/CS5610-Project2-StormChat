@@ -1,0 +1,6 @@
+<article class="post">
+  <p class="post__author">
+    Posted by <%= @post.author.handle %> at <time><%= @post.inserted_at %></time>
+  </p>
+  <%= @post.text %>
+</article>

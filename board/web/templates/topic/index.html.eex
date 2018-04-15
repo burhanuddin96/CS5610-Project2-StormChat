@@ -1,0 +1,11 @@
+<section class="topic-index">
+  <h2 class="section-header">All topics</h2>
+  <div class="topics-list">
+    <%= for topic <- @topics do %>
+      <%= render Board.ComponentView, "topic_card.html", topic: topic, conn: @conn %>
+    <% end %>
+  </div>
+  <p>
+    <%= link("New topic", to: topic_path(@conn, :new), class: "new") %>
+  </p>
+</section>
