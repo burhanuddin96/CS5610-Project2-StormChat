@@ -27,12 +27,48 @@ defmodule Stormchat.Posts do
 
   # returns a list of the latest "post_limit" posts
   def get_latest_posts(alert_id) do
+    pl = post_limit()
+
     query =
       from p in Post,
         where: p.alert_id == ^alert_id,
         select: p,
-        order_by: desc: p.inserted_at,
-        limit: post_limit()
+        order_by: [desc: p.inserted_at],
+        limit: ^pl
+
+    Repo.all(query)
+  end
+
+  # returns a list of the previous "post_limit" posts, including the given post
+  def get_previous_posts(first_id) do
+    first_post = get_post(first_id)
+    alert_id = first_post.alert_id
+    inserted_at = first_post.inserted_at
+    pl = post_limit()
+
+    query =
+      from p in Post,
+        where: p.alert_id == ^alert_id and p.inserted_at <= ^inserted_at,
+        select: p,
+        order_by: [desc: p.inserted_at],
+        limit: ^pl
+
+    Repo.all(query)
+  end
+
+  # returns a list of the next "post_limit" posts, including the given post
+  def get_next_posts(last_id) do
+    last_post = get_post(last_id)
+    alert_id = last_post.alert_id
+    inserted_at = last_post.inserted_at
+    pl = post_limit()
+
+    query =
+      from p in Post,
+        where: p.alert_id == ^alert_id and p.inserted_at >= ^inserted_at,
+        select: p,
+        order_by: [desc: p.inserted_at],
+        limit: ^pl
 
     Repo.all(query)
   end
@@ -60,6 +96,8 @@ defmodule Stormchat.Posts do
 
   """
   def get_post!(id), do: Repo.get!(Post, id)
+
+  def get_post(id), do: Repo.get(Post, id)
 
   @doc """
   Creates a post.

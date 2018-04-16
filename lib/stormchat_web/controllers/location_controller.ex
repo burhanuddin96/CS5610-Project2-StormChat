@@ -42,14 +42,20 @@ defmodule StormchatWeb.LocationController do
   # shows the location corresponding to the given location id
   # if and only if that locations user_id matches the verified user_id
   def show(conn, %{"id" => id}) do
-    location = Locations.get_location(id)
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+      {:ok, user_id} ->
+        location = Locations.get_location(id)
 
-    if location == nil || user_id != location.user_id do
-      IO.inspect({:bad_match, location.user_id, user_id})
-      raise "hax!"
+        if location == nil || user_id != location.user_id do
+          IO.inspect({:bad_match, location.user_id, user_id})
+          raise "hax!"
+        end
+
+        render(conn, "show.json", location: location)
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
     end
-
-    render(conn, "show.json", location: location)
   end
 
   # creates a saved location for the verified user
