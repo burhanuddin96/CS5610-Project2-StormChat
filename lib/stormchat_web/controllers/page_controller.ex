@@ -1,8 +1,9 @@
 defmodule StormchatWeb.PageController do
   use StormchatWeb, :controller
 
-  def index(conn, _params) do
-    render conn, "index.html"
+  # render main log-in page, passing along alert_id for future redirect if relevant
+  def index(conn, params) do
+    render conn, "index.html", alert_id: params["alert_id"]
   end
 
   # if a user is logged in, render the home page
@@ -31,14 +32,14 @@ defmodule StormchatWeb.PageController do
       {:ok, user_id} ->
         user = Stormchat.Users.get_user(user_id)
         if user do
-          render conn, "alert.html", alert: params["alert"]
+          render conn, "alert.html", alert_id: params["alert_id"]
         else
           conn
           |> redirect(to: page_path(conn, :index))
         end
-      _else ->
+      _no_valid_token ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        |> redirect(to: page_path(conn, :index, params["alert_id"]))
     end
   end
 end

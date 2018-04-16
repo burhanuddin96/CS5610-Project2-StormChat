@@ -6,6 +6,8 @@ defmodule StormchatWeb.CountyController do
 
   action_fallback StormchatWeb.FallbackController
 
+  # TODO: determine if any of these are really needed
+
   def index(conn, _params) do
     counties = Alerts.list_counties()
     render(conn, "index.json", counties: counties)

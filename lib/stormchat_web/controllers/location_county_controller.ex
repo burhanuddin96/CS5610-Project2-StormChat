@@ -6,6 +6,8 @@ defmodule StormchatWeb.LocationCountyController do
 
   action_fallback StormchatWeb.FallbackController
 
+  # TODO: determine if any of these are needed
+
   def index(conn, _params) do
     location_counties = Locations.list_location_counties()
     render(conn, "index.json", location_counties: location_counties)

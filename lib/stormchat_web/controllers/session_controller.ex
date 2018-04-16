@@ -6,16 +6,25 @@ defmodule StormchatWeb.SessionController do
 
   # creates a session for the given user credentials if authorized
   # and puts the token in the conn assigns
-  def create(conn, %{"email" => email, "password" => password}) do
+  def create(conn, params) do
+
+    email = params["email"]
+    password = params["password"]
+
     case Stormchat.Users.get_and_auth_user(email, password) do
       {:ok, %User{} = user} ->
         token = Phoenix.Token.sign(conn, "auth token", user.id)
 
-        conn
-        |> assign(:token, token)
-        |> put_flash(:info, "Welcome back, #{user.name}!")
-        |> redirect(to: page_path(conn, :home))
-
+        if params["alert_id"] == nil || params["alert_id"] == "" do
+          conn
+          |> assign(:token, token)
+          |> put_flash(:info, "Welcome back, #{user.name}!")
+          |> redirect(to: page_path(conn, :home))
+        else
+          conn
+          |> assign(:token, token)
+          |> redirect(to: page_path(conn, :alert, params["alert_id"]))
+        end
       _else ->
         conn
         |> put_flash(:error, "Invalid credentials!")

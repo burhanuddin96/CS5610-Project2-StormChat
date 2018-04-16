@@ -1,3 +1,6 @@
+<script>
+  window.alertID = "<%= @alert_id %>";
+</script>
 <div id="root">
   <p>React app loadeding...</p>
 </div>

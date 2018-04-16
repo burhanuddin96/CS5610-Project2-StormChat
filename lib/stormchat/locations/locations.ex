@@ -77,6 +77,8 @@ defmodule Stormchat.Locations do
   """
   def get_location!(id), do: Repo.get!(Location, id)
 
+  def get_location(id), do: Repo.get(Location, id)
+
   def get_location_id(lat, long, user_id) do
     query = from l in Location,
       where: l.lat == ^lat and l.long == ^long and l.user_id == ^user_id

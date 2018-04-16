@@ -18,6 +18,7 @@ defmodule StormchatWeb.AlertController do
     end
   end
 
+  # TODO: determine if this will be needed
   def create(conn, %{"alert" => alert_params}) do
     with {:ok, %Alert{} = alert} <- Alerts.create_alert(alert_params) do
       conn
@@ -27,11 +28,13 @@ defmodule StormchatWeb.AlertController do
     end
   end
 
+  # TODO: determine if this will be needed
   def show(conn, %{"id" => id}) do
     alert = Alerts.get_alert!(id)
     render(conn, "show.json", alert: alert)
   end
 
+  # TODO: determine if this will be needed
   def update(conn, %{"id" => id, "alert" => alert_params}) do
     alert = Alerts.get_alert!(id)
 
@@ -40,6 +43,7 @@ defmodule StormchatWeb.AlertController do
     end
   end
 
+  # TODO: determine if this will be needed
   def delete(conn, %{"id" => id}) do
     alert = Alerts.get_alert!(id)
     with {:ok, %Alert{}} <- Alerts.delete_alert(alert) do
