@@ -6,6 +6,7 @@ defmodule StormchatWeb.UserController do
 
   action_fallback StormchatWeb.FallbackController
 
+  # TODO: determine if this will be used
   def index(conn, _params) do
     users = Users.list_users()
     render(conn, "index.json", users: users)
@@ -21,7 +22,7 @@ defmodule StormchatWeb.UserController do
   end
 
   # returns the verified user (view doesn't include password_hash)
-  def show(conn, %{"id" => id}) do
+  def show(conn, _params) do
     case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         user = Users.get_user!(user_id)
@@ -32,26 +33,37 @@ defmodule StormchatWeb.UserController do
     end
   end
 
-  # verifies that the token user matches the user to be updated
-  # TODO: finish this!!!
-  def update(conn, %{"token" => token, "user_params" => user_params}) do
-    {:ok, user_id} = Phoenix.Token.verify(conn, "auth token", token, max_age: 86400)
-    user = Users.get_user(user_id)
+  # verifies that the token user matches the user to be updated, then updates
+  def update(conn, %{"user_params" => user_params}) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+      {:ok, user_id} ->
+        user = Users.get_user(user_id)
 
-    if user == nil || user.id != user_params["id"] do
-      IO.inspect({:bad_match, user_params["id"], user.id})
-      raise "hax!"
-    end
+        if user == nil || user.id != user_params["id"] do
+          IO.inspect({:bad_match, user_params["id"], user.id})
+          raise "hax!"
+        end
 
-    with {:ok, %User{} = user} <- Users.update_user(user, user_params) do
-      render(conn, "show.json", user: user)
+        with {:ok, %User{} = user} <- Users.update_user(user, user_params) do
+          render(conn, "show.json", user: user)
+        end
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    user = Users.get_user!(id)
-    with {:ok, %User{}} <- Users.delete_user(user) do
-      send_resp(conn, :no_content, "")
+  # verifies that the token user matches the user to be deleted, then deletes
+  def delete(conn, _params) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+      {:ok, user_id} ->
+        user = Users.get_user!(user_id)
+        with {:ok, %User{}} <- Users.delete_user(user) do
+          send_resp(conn, :no_content, "")
+        end
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
     end
   end
 end

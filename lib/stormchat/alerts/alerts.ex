@@ -258,7 +258,7 @@ defmodule Stormchat.Alerts do
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
         where: l.user_id == ^user_id,
-        select: a
+        distinct: a
 
     Repo.all(query)
   end
@@ -363,6 +363,16 @@ defmodule Stormchat.Alerts do
   """
   def list_counties do
     Repo.all(County)
+  end
+
+  # returns a list of fips codes affected by the given alert
+  def get_affected_fips(alert_id) do
+    query =
+      from c in County,
+        where: c.alert_id = ^alert_id,
+        select: c.fips_code
+
+    Repo.all(query)
   end
 
   @doc """

@@ -21,6 +21,22 @@ defmodule Stormchat.Posts do
     Repo.all(Post)
   end
 
+  def post_limit do
+    10
+  end
+
+  # returns a list of the latest "post_limit" posts
+  def get_latest_posts(alert_id) do
+    query =
+      from p in Post,
+        where: p.alert_id == ^alert_id,
+        select: p,
+        order_by: desc: p.inserted_at,
+        limit: post_limit()
+
+    Repo.all(query)
+  end
+
   def list_posts_by_alert_id(alert_id) do
     query =
       from p in Post,

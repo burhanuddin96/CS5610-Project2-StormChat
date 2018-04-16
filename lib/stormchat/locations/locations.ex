@@ -8,6 +8,16 @@ defmodule Stormchat.Locations do
 
   alias Stormchat.Locations.Location
   alias Stormchat.Locations.LocationCounty
+  alias Stormchat.Alerts
+  alias Stormchat.Alerts.Alert
+  alias Stormchat.Locations.CountyPolygons
+
+  # returns a list of polygons affected by the given alert
+  def get_affected_polygons(alert_id) do
+    Alerts.get_affected_fips(alert_id)
+    |> Enum.map(fn(fc)->  CountyPolygons.get_county_polygons_by_fips(fc) end)
+    |> List.flatten()
+  end
 
   # returns a list of fips codes encompassing or nearby the given coordinates
   # fuzziness built into datasciencetoolkit api
@@ -76,6 +86,8 @@ defmodule Stormchat.Locations do
 
   """
   def get_location!(id), do: Repo.get!(Location, id)
+
+  def get_location(id), do: Repo.get(Location, id)
 
   def get_location_id(lat, long, user_id) do
     query = from l in Location,
