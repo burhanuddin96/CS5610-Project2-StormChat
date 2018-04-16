@@ -28,6 +28,45 @@ defmodule StormchatWeb.AlertsChannel do
     end
   end
 
+  # sent when a new post is to be created, returns a list of this channel's latest posts
+  def handle_in("post", attrs, socket) do
+    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+      {:ok, _user_id} ->
+        {msg, resp} = Posts.create_post(attrs)
+
+        case msg do
+          ok: ->
+            payload = %{"posts" => Posts.get_latest_posts(attrs[:alert_id])}
+            broadcast_from socket, "new_post", payload
+            {:reply, {:ok, payload}, socket}
+          _error ->
+            {:reply, {:error, %{reason: "error creating post"}}
+        end
+      _else ->
+        {:error, %{reason: "invalid authorization token"}}
+    end
+  end
+
+  # returns the given post plus the posts_limit - 1 previous posts
+  def handle_in("previous",  %{"first_id" => first_id}, socket) do
+    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+      {:ok, _user_id} ->
+        {:reply, {:ok, %{ "posts" => Posts.get_previous_posts(first_id)}}, socket}
+      _else ->
+        {:error, %{reason: "invalid authorization token"}}
+    end
+  end
+
+  # returns the given post plus the posts_limit - 1 next posts
+  def handle_in("next",  %{"last_id" => last_id}, socket) do
+    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+      {:ok, _user_id} ->
+        {:reply, {:ok, %{ "posts" => Posts.get_next_posts(last_id)}}, socket}
+      _else ->
+        {:error, %{reason: "invalid authorization token"}}
+    end
+  end
+
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
   def handle_in("ping", payload, socket) do
