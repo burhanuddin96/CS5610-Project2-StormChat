@@ -1,12 +1,12 @@
-defmodule StormchatWeb.ChatsChannelTest do
+defmodule StormchatWeb.AlertsChannelTest do
   use StormchatWeb.ChannelCase
 
-  alias StormchatWeb.ChatsChannel
+  alias StormchatWeb.AlertsChannel
 
   setup do
     {:ok, _, socket} =
       socket("user_id", %{some: :assign})
-      |> subscribe_and_join(ChatsChannel, "chats:lobby")
+      |> subscribe_and_join(AlertsChannel, "alerts:lobby")
 
     {:ok, socket: socket}
   end
@@ -16,7 +16,7 @@ defmodule StormchatWeb.ChatsChannelTest do
     assert_reply ref, :ok, %{"hello" => "there"}
   end
 
-  test "shout broadcasts to chats:lobby", %{socket: socket} do
+  test "shout broadcasts to alerts:lobby", %{socket: socket} do
     push socket, "shout", %{"hello" => "all"}
     assert_broadcast "shout", %{"hello" => "all"}
   end

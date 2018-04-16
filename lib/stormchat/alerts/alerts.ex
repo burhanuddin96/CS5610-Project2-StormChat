@@ -16,6 +16,7 @@ defmodule Stormchat.Alerts do
   alias Stormchat.Repo
 
   alias Stormchat.Alerts.Alert
+  alias Stormchat.Alerts.County
   alias Stormchat.Locations.Location
   alias Stormchat.Locations.LocationCounty
   alias Stormchat.Users
@@ -247,6 +248,19 @@ defmodule Stormchat.Alerts do
   """
   def list_alerts do
     Repo.all(Alert)
+  end
+
+  # returns all alerts that affect the given user
+  def list_alerts_by_user_id(user_id) do
+    query =
+      from a in Alerts,
+        join: c in County, on: c.alert_id == a.id,
+        join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
+        join: l in Location, on: l.id == lc.location_id,
+        where: l.user_id == ^user_id,
+        select: a
+
+    Repo.all(query)
   end
 
   @doc """

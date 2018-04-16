@@ -9,6 +9,7 @@
 
     <title>Hello Stormchat!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+    <script>window.userToken = "<%= assigns[token] %>";</script>
   </head>
 
   <body>
