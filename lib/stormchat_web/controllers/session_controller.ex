@@ -2,6 +2,7 @@ defmodule StormchatWeb.SessionController do
   use StormchatWeb, :controller
 
   alias Stormchat.Users
+  alias Stormchat.Users.User
 
   # creates a session for the given user credentials if authorized
   # and puts the token in the conn assigns

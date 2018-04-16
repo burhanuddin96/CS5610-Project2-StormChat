@@ -24,7 +24,7 @@ defmodule Stormchat.Posts do
   def list_posts_by_alert_id(alert_id) do
     query =
       from p in Post,
-      where p.alert_id == ^alert_id
+      where: p.alert_id == ^alert_id
 
     Repo.all(query)
   end

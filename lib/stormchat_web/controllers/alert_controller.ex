@@ -8,9 +8,7 @@ defmodule StormchatWeb.AlertController do
 
   # returns a list of the verified user's alerts
   def index(conn, _params) do
-    token = assigns(conn, :token)
-
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         alerts = Alerts.list_alerts_by_user_id(user_id)
         render(conn, "index.json", alerts: alerts)

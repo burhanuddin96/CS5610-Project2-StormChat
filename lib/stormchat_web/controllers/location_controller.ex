@@ -8,9 +8,7 @@ defmodule StormchatWeb.LocationController do
 
   # returns a list of the verified user's saved locations
   def index(conn, _params) do
-    token = assigns(conn, :token)
-
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         locations = Locations.list_locations_by_user_id(user_id)
         render(conn, "index.json", locations: locations)
@@ -22,9 +20,7 @@ defmodule StormchatWeb.LocationController do
 
   # creates a saved location for the verified user
   def create(conn, %{"location" => location_params}) do
-    token = assigns(conn, :token)
-
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         # make sure a verified user can only create locations for themselves
         location_params = Map.put(location_params, :user_id, user_id)
@@ -48,9 +44,7 @@ defmodule StormchatWeb.LocationController do
 
   # creates a saved location for the verified user
   def update(conn, %{"id" => id, "location" => location_params}) do
-    token = assigns(conn, :token)
-
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         location = Locations.get_location!(id)
 
@@ -60,6 +54,7 @@ defmodule StormchatWeb.LocationController do
             render(conn, "show.json", location: location)
           end
         else
+          conn
           |> redirect(to: page_path(conn, :index))
         end
       _else ->
@@ -70,9 +65,7 @@ defmodule StormchatWeb.LocationController do
 
   # deletes a verified user's saved location
   def delete(conn, %{"id" => id}) do
-    token = assigns(conn, :token)
-
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         location = Locations.get_location!(id)
 
@@ -82,6 +75,7 @@ defmodule StormchatWeb.LocationController do
             send_resp(conn, :no_content, "")
           end
         else
+          conn
           |> redirect(to: page_path(conn, :index))
         end
       _else ->
