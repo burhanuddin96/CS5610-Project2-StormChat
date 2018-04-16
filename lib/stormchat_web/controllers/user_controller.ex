@@ -20,9 +20,18 @@ defmodule StormchatWeb.UserController do
     end
   end
 
+  # returns the verified user
   def show(conn, %{"id" => id}) do
-    user = Users.get_user!(id)
-    render(conn, "show.json", user: user)
+    token = assigns(conn, :token)
+
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+      {:ok, user_id} ->
+        user = Users.get_user!(user_id)
+        render(conn, "show.json", user: user)
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
+    end
   end
 
   # verifies that the token user matches the user to be updated

@@ -6,9 +6,18 @@ defmodule StormchatWeb.LocationController do
 
   action_fallback StormchatWeb.FallbackController
 
+  # returns a list of the verified user's saved locations
   def index(conn, _params) do
-    locations = Locations.list_locations()
-    render(conn, "index.json", locations: locations)
+    token = assigns(conn, :token)
+
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+      {:ok, user_id} ->
+        locations = Locations.list_locations_by_user_id(user_id)
+        render(conn, "index.json", locations: locations)
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
+    end
   end
 
   def create(conn, %{"location" => location_params}) do

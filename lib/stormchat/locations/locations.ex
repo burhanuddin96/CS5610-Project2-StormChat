@@ -52,6 +52,15 @@ defmodule Stormchat.Locations do
     Repo.all(Location)
   end
 
+  # returns a list of the given user's saved locations
+  def list_locations_by_user_id(user_id) do
+    query =
+      from l in Location,
+        where: l.user_id == ^user_id
+
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single location.
 
