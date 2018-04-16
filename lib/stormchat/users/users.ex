@@ -29,7 +29,7 @@ defmodule Stormchat.Users do
         join: lc in LocationCounty, on: lc.location_id == l.id,
         join: c in County, on: c.fips_code == lc.fips_code,
         where: c.alert_id == ^alert_id,
-        distinct: u
+        distinct: u.id
 
     Repo.all(query)
   end

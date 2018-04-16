@@ -3,6 +3,7 @@ defmodule StormchatWeb.AlertsChannel do
 
   alias Stormchat.Locations
   alias Stormchat.Posts
+  alias Stormchat.Users
 
   # authenticates socket tocken, then returns the following payload
   # - alert: the alert for this channel
@@ -10,7 +11,7 @@ defmodule StormchatWeb.AlertsChannel do
   # - post: a list of the latest posts for this channel's alert
   # - users: a list of users with saved locations affected by this channel's alert
   def join("alerts:" <> alert_id, payload, socket) do
-    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+    case Phoenix.Token.verify(socket, "auth token", socket.assigns[:token], max_age: 86400) do
       {:ok, user_id} ->
         alert = Stormchat.Alerts.get_alert(alert_id)
 
@@ -30,17 +31,17 @@ defmodule StormchatWeb.AlertsChannel do
 
   # sent when a new post is to be created, returns a list of this channel's latest posts
   def handle_in("post", attrs, socket) do
-    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+    case Phoenix.Token.verify(socket, "auth token", socket.assigns[:token], max_age: 86400) do
       {:ok, _user_id} ->
         {msg, resp} = Posts.create_post(attrs)
 
         case msg do
-          ok: ->
+          :ok ->
             payload = %{"posts" => Posts.get_latest_posts(attrs[:alert_id])}
             broadcast_from socket, "new_post", payload
             {:reply, {:ok, payload}, socket}
           _error ->
-            {:reply, {:error, %{reason: "error creating post"}}
+            {:reply, {:error, %{reason: "error creating post"}}}
         end
       _else ->
         {:error, %{reason: "invalid authorization token"}}
@@ -49,7 +50,7 @@ defmodule StormchatWeb.AlertsChannel do
 
   # returns the given post plus the posts_limit - 1 previous posts
   def handle_in("previous",  %{"first_id" => first_id}, socket) do
-    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+    case Phoenix.Token.verify(socket, "auth token", socket.assigns[:token], max_age: 86400) do
       {:ok, _user_id} ->
         {:reply, {:ok, %{ "posts" => Posts.get_previous_posts(first_id)}}, socket}
       _else ->
@@ -59,7 +60,7 @@ defmodule StormchatWeb.AlertsChannel do
 
   # returns the given post plus the posts_limit - 1 next posts
   def handle_in("next",  %{"last_id" => last_id}, socket) do
-    case Phoenix.Token.verify(conn, "auth token", socket.assigns[:token], max_age: 86400) do
+    case Phoenix.Token.verify(socket, "auth token", socket.assigns[:token], max_age: 86400) do
       {:ok, _user_id} ->
         {:reply, {:ok, %{ "posts" => Posts.get_next_posts(last_id)}}, socket}
       _else ->

@@ -1,8 +1,13 @@
 defmodule StormchatWeb.PageController do
   use StormchatWeb, :controller
 
+  # render main log-in page
+  def index(conn, _params) do
+    render conn, "index.html", alert_id: ""
+  end
+
   # render main log-in page, passing along alert_id for future redirect if relevant
-  def index(conn, params) do
+  def index_redirect(conn, params) do
     render conn, "index.html", alert_id: params["alert_id"]
   end
 

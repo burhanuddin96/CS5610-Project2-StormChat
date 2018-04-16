@@ -16,7 +16,8 @@ defmodule StormchatWeb.Router do
   scope "/", StormchatWeb do
     pipe_through :browser # Use the default browser stack
 
-    get "/:alert_id", PageController, :index
+    get "/", PageController, :index
+    get "/:alert_id", PageController, :index_redirect
     post "/session", SessionController, :create
     delete "/session", SessionController, :delete
     get "/home", PageController, :home
