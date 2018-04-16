@@ -253,7 +253,7 @@ defmodule Stormchat.Alerts do
   # returns all alerts that affect the given user
   def list_alerts_by_user_id(user_id) do
     query =
-      from a in Alerts,
+      from a in Alert,
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
