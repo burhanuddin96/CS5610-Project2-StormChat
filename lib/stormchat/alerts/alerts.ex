@@ -256,7 +256,8 @@ defmodule Stormchat.Alerts do
       from a in Alerts,
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
-        where: lc.user_id == ^user_id,
+        join: l in Location, on: l.id == lc.location_id,
+        where: l.user_id == ^user_id,
         select: a
 
     Repo.all(query)

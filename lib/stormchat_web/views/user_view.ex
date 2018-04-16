@@ -10,11 +10,12 @@ defmodule StormchatWeb.UserView do
     %{data: render_one(user, UserView, "user.json")}
   end
 
+  # modified to not include the password hash
   def render("user.json", %{user: user}) do
     %{id: user.id,
       name: user.name,
       email: user.email,
-      phone: user.phone,
-      password_hash: user.password_hash}
+      phone: user.phone}
+      # password_hash: user.password_hash}
   end
 end

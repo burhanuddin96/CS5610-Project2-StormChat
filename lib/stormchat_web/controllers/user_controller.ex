@@ -20,7 +20,7 @@ defmodule StormchatWeb.UserController do
     end
   end
 
-  # returns the verified user
+  # returns the verified user (view doesn't include password_hash)
   def show(conn, %{"id" => id}) do
     token = assigns(conn, :token)
 
@@ -35,6 +35,7 @@ defmodule StormchatWeb.UserController do
   end
 
   # verifies that the token user matches the user to be updated
+  # TODO: finish this!!!
   def update(conn, %{"token" => token, "user_params" => user_params}) do
     {:ok, user_id} = Phoenix.Token.verify(conn, "auth token", token, max_age: 86400)
     user = Users.get_user(user_id)

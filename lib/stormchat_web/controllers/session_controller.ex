@@ -4,6 +4,7 @@ defmodule StormchatWeb.SessionController do
   alias Stormchat.Users
 
   # creates a session for the given user credentials if authorized
+  # and puts the token in the conn assigns
   def create(conn, %{"email" => email, "password" => password}) do
     case Stormchat.Users.get_and_auth_user(email, password) do
       {:ok, %User{} = user} ->
@@ -22,6 +23,7 @@ defmodule StormchatWeb.SessionController do
   end
 
   # closes the given connection's session
+  # and removes the token from the conn assigns
   def delete(conn, _params) do
     conn
     |> Map.put(:assigns, Map.delete(conn.assigns, :token))
