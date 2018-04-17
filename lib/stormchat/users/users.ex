@@ -22,6 +22,18 @@ defmodule Stormchat.Users do
     Repo.all(User)
   end
 
+  def get_affected_users(alert_id) do
+    query =
+      from u in User,
+        join: l in Location, on: l.user_id == u.id,
+        join: lc in LocationCounty, on: lc.location_id == l.id,
+        join: c in County, on: c.fips_code == lc.fips_code,
+        where: c.alert_id == ^alert_id,
+        distinct: u.id
+
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single user.
 

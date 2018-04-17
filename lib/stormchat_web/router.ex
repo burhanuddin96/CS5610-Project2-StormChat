@@ -17,8 +17,10 @@ defmodule StormchatWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/users", PageController, :index
-    get "/users/:id", PageController, :index
+    get "/home", PageController, :index
+    get "/alert/:alert_id", PageController, :index
+    # post "/session", SessionController, :create
+    # delete "/session", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.
@@ -30,6 +32,7 @@ defmodule StormchatWeb.Router do
     resources "/counties", CountyController, except: [:new, :edit]
     resources "/locations", LocationController, except: [:new, :edit]
     resources "/location_counties", LocationCountyController, except: [:new, :edit]
+    resources "/posts", PostController, except: [:new, :edit]
     post "/token", TokenController, :create
   end
 end
