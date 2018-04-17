@@ -266,7 +266,7 @@ defmodule Stormchat.Alerts do
     10
   end
 
-  def get_latest_active_alerts(user_id) do
+  def get_active_alerts(user_id) do
     now = DateTime.utc_now()
     al = alert_limit()
 
