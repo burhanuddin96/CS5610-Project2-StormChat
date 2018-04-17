@@ -4,6 +4,8 @@ defmodule StormchatWeb.SessionController do
   alias Stormchat.Users
   alias Stormchat.Users.User
 
+  # TODO: determine if this module is needed (I don't think it is)
+
   # creates a session for the given user credentials if authorized
   # and puts the token in the conn assigns
   def create(conn, params) do
