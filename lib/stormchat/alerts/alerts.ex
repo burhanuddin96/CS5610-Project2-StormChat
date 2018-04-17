@@ -256,12 +256,11 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id,
+        where: l.user_id == ^user_id and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
         distinct: a.id,
         select: a
 
     Repo.all(query)
-    |> filter_expired_current_locations()
   end
 
   def alert_limit do
@@ -277,14 +276,13 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires > ^now,
+        where: l.user_id == ^user_id and a.expires > ^now  and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
         select: a
 
     Repo.all(query)
-    |> filter_expired_current_locations()
   end
 
   def get_older_active_alerts(user_id, oldest_id) do
@@ -298,14 +296,13 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires > ^now and a.inserted_at < ^inserted_at,
+        where: l.user_id == ^user_id and a.expires > ^now and a.inserted_at < ^inserted_at and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
         select: a
 
     Repo.all(query)
-    |> filter_expired_current_locations()
   end
 
   def get_historical_alerts(user_id) do
@@ -317,14 +314,13 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires <= ^now,
+        where: l.user_id == ^user_id and a.expires <= ^now and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
         select: a
 
     Repo.all(query)
-    |> filter_expired_current_locations()
   end
 
   def get_older_historical_alerts(user_id, oldest_id) do
@@ -338,19 +334,13 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires <= ^now and a.inserted_at < ^inserted_at,
+        where: l.user_id == ^user_id and a.expires <= ^now and a.inserted_at < ^inserted_at and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
         select: a
 
     Repo.all(query)
-    |> filter_expired_current_locations()
-  end
-
-  def filter_expired_current_locations(locations) do
-    locations
-    |> Enum.filter(fn(aa) -> aa.name != "current_location" || DateTime.diff(DateTime.utc_now, aa.updated_at) < 86400 end)
   end
 
   @doc """
