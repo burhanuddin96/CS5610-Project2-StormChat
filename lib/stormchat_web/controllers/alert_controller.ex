@@ -32,6 +32,25 @@ defmodule StormchatWeb.AlertController do
     end
   end
 
+  def get_alerts(conn, %{"token" => token, "type" => type, "alert_id" => alert_id}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+      {:ok, user_id} ->
+        alerts =
+          case type do
+            "active" -> Alerts.get_active_alerts(user_id)
+            "active_older" -> Alerts.get_older_active_alerts(user_id, alert_id)
+            "historical" -> Alerts.get_historical_alerts(user_id)
+            "historical_older" -> Alerts.get_older_historical_alerts(user_id, alert_id)
+            _else -> Alerts.get_active_alerts(user_id)
+          end
+
+        render(conn, "index.json", alerts: alerts)
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
+    end
+  end
+
   # TODO: determine if this will be needed
   def create(conn, %{"alert" => alert_params}) do
     with {:ok, %Alert{} = alert} <- Alerts.create_alert(alert_params) do

@@ -18,7 +18,7 @@ defmodule StormchatWeb.AlertsChannel do
     else
       polygons = Locations.get_affected_polygons(alert.id)
       posts = Posts.get_latest_posts(alert.id)
-      users = Users.get_affected_users(alert.id)
+      users = Users.get_affected_user_count(alert.id)
 
       {:ok, %{"alert" => alert, "polygons" => polygons, "posts" => posts, "users" => users}, socket}
     end
