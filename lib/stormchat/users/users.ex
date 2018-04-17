@@ -93,7 +93,7 @@ defmodule Stormchat.Users do
 
     case msg do
       :ok ->
-        body = "new user (id:" <> resp.id <> ") needs phone number verified (" <> resp.phone <> ")"
+        body = "new user (id:#{resp.id}) needs phone number verified (#{resp.phone})"
         Alerts.send_sms("8572721850", body)
         {msg, resp}
       :error ->

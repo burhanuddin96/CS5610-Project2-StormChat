@@ -1,31 +1,55 @@
 import store from './store';
 
-class TheServer {
-  request_users() {
-    $.ajax("/api/v1/users", {
-      method: "get",
-      dataType: "json",
-      contentType: "application/json; charset=UTF-8",
-      success: (resp) => {
-        store.dispatch({
-          type: 'USERS_LIST',
-          users: resp.data,
-        });
-      },
-    });
-  }
+const weatherAPI = "ae122e8192b014da71c80636464532d8";
 
-  submit_user(data) {
+class TheServer {
+
+  submitSignUp(data, onSuccess, onError) {
     $.ajax("/api/v1/users", {
       method: "post",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
       data: JSON.stringify({ user_params: data }),
-      success: (resp) => {},
+      success: (resp) => {
+        store.dispatch({
+          type: 'SUCCESS_MSG',
+          success: 'Signed up successfully'
+        });
+        onSuccess();
+      },
+      error: (resp) => {
+        console.log(resp.responseJSON.errors);
+        if (resp.status == 422) {
+          onError(resp.responseJSON.errors);
+        }
+      }
     });
   }
 
-  update_user(data) {
+  submitLogin(data, onSuccess) {
+    $.ajax("/api/v1/token", {
+      method: "post",
+      dataType: "json",
+      contentType: "application/json; charset=UTF-8",
+      data: JSON.stringify(data),
+      success: (resp) => {
+        store.dispatch({
+          type: 'SET_USER',
+          user: resp
+        });
+      },
+      success: (resp) => { onSuccess(); },
+      error: (resp) => {
+        store.dispatch({
+          type: 'ERROR_MSG',
+          msg: "Login failed",
+        });
+      }
+    });
+  }
+
+  //TODO
+  updateUser(data) {
     let path = "/api/v1/users/" + data.user_params.id;
 
     $.ajax(path, {
@@ -39,50 +63,18 @@ class TheServer {
     });
   }
 
-  submit_login(data) {
-    $.ajax("/api/v1/token", {
-      method: "post",
-      dataType: "json",
-      contentType: "application/json; charset=UTF-8",
-      data: JSON.stringify(data),
-      success: (resp) => {
-        store.dispatch({
-          type: 'SET_TOKEN',
-          token: resp
-        });
-        this.request_users();
-        this.request_current_user(resp);
-      },
-      error: (resp) => {
-    		store.dispatch({
-    			type: 'LOG_OUT',
-    			msg: "Incorrect email or password.",
-    		});
-    	}
-    });
-  }
-
-  request_current_user(data) {
-    let path = "/api/v1/users/" + data.user_id;
-
+  getCurrentWeather(lat, lon) {
+    let path = `api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${weatherAPI}`;
     $.ajax(path, {
       method: "get",
-      dataType: "json",
-      contentType: "application/json; charset=UTF-8",
       success: (resp) => {
         store.dispatch({
-          type: 'UPDATE_EDIT_USER_FORM',
-          data: {
-            id: resp.data.id,
-            name: resp.data.name,
-            email: resp.data.email,
-            phone: resp.data.phone
-          }
+          type: 'WEATHER',
+          data: resp
         });
-      },
+      }
     });
   }
-
 }
 
 export default new TheServer();

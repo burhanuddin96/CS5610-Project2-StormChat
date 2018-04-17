@@ -2,133 +2,121 @@ import { createStore, combineReducers } from 'redux';
 import deepFreeze from 'deep-freeze';
 
 /*
-*  state layout:
-*  {
-*   users: [... Users ...],
-*   user: {
-*     name: string,
-*     email: string,
-*     phone: string
-*   }
-*   new_user_form: {
-*     name: string,
-*     email: string,
-*     phone: string,
-*     password: string,
-*     password_confirmation: string
-*   },
-*   edit_user_form: {
-*     id: integer,
-*     name: string,
-*     email: string,
-*     phone: string,
-*     password: string,
-*     password_confirmation: string
-*   },
-*   token: {
-*     token: string,
-*     user_id: integer
-*   },
-*   login: {
-*     email: string,
-*     password: string,
-	  msg: "",
-*   }
-* }
-* */
+ * state layout:
+ * {
+ *   user: {
+ *     user_id: null,
+ *     name: "",
+ *     token: null
+ *   },
+ *   login: {
+ *     email: "",
+ *     password: ""
+ *   },
+ *   signUp: {
+ *     name: "",
+ *     phone: "",
+ *     email: "",
+ *     password: "",
+ *     password_confirmation: ""
+ *   },
+ *   chat: "",
+ *   success: "",
+ *   error: ""
+ * }
+ */
 
-function users(state = [], action) {
+function user(state = null, action) {
   switch (action.type) {
-    case 'USERS_LIST':
-      return [...action.users];
-      case 'ADD_USER':
-        return [action.user, ...state];
-    case 'LOG_OUT':
-      return [];
-    default:
-      return state;
-  }
-}
-
-let empty_new_user_form = {
-  name: "",
-  email: "",
-  phone: "",
-  password: "",
-  password_confirmation: ""
-};
-
-function new_user_form(state = empty_new_user_form, action) {
-  switch (action.type) {
-    case 'UPDATE_NEW_USER_FORM':
-      return Object.assign({}, state, action.data);
-    case 'CLEAR_NEW_USER_FORM':
-      return empty_new_user_form;
-    case 'LOG_OUT':
-      return empty_new_user_form;
-    default:
-      return state;
-  }
-}
-
-let empty_edit_user_form = {
-  id: "",
-  name: "",
-  email: "",
-  phone: "",
-  password: "",
-  password_confirmation: ""
-};
-
-function edit_user_form(state = empty_edit_user_form, action) {
-  switch (action.type) {
-    case 'UPDATE_EDIT_USER_FORM':
-      return Object.assign({}, state, action.data);
-    case 'CLEAR_EDIT_USER_FORM':
-      return empty_edit_user_form;
-    case 'LOG_OUT':
-      return empty_edit_user_form;
-    default:
-      return state;
-  }
-}
-
-function token(state = null, action) {
-  switch (action.type) {
-    case 'SET_TOKEN':
-      return action.token;
-    case 'LOG_OUT':
+    case 'SET_USER':
+      return action.user;
+    case 'DELETE_USER':
       return null;
     default:
       return state;
   }
 }
 
-let empty_login = {
+let emptySignUp = {
+  name: "",
   email: "",
+  phone: "",
   password: "",
-  msg: ""
+  password_confirmation: ""
 };
 
-function login(state = empty_login, action) {
+function signUp(state = emptySignUp, action) {
   switch (action.type) {
-    case 'UPDATE_LOGIN_FORM':
+    case 'UPDATE_SIGNUP':
       return Object.assign({}, state, action.data);
-    case 'LOG_OUT':
-      return Object.assign({}, empty_login, {msg: action.msg});
+    case 'RESET_FORMS':
+      return emptySignUp;
+    default:
+      return state;
+  }
+}
+
+let emptyLogin = {
+  email: "",
+  password: ""
+};
+
+function login(state = emptyLogin, action) {
+  switch (action.type) {
+    case 'UPDATE_LOGIN':
+      return Object.assign({}, state, action.data);
+    case 'RESET_FORMS':
+      return emptyLogin;
+    default:
+        return state;
+  }
+}
+
+function chat(state = "", action) {
+  switch (action.type) {
+    case 'UPDATE_CHAT':
+      return action.chat;
+    case 'RESET_FORMS':
+      return "";
+    default:
+      return state;
+  }
+}
+
+function success(state = "", action) {
+  switch (action.type) {
+    case 'SUCCESS_MSG':
+      return action.success;
+    case 'ERROR_MSG':
+      return "";
+    case 'RESET_SUCCESS':
+      return "";
+    default:
+      return state;
+  }
+}
+
+function error(state = "", action) {
+  switch (action.type) {
+    case 'ERROR_MSG':
+      return action.error;
+    case 'SUCCESS_MSG':
+      return "";
+    case 'RESET_ERROR':
+      return "";
     default:
       return state;
   }
 }
 
 function root_reducer(state0, action) {
-  console.log("state0", state0)
-  // {tasks, users, form} is ES6 shorthand for
-  // {tasks: tasks, users: users, form: form}
-  let reducer = combineReducers({users, new_user_form, edit_user_form, token, login});
+  console.log("state0", state0);
+  let reducer = combineReducers(
+    {user, login, signUp, chat, success, error}
+  );
   let state1 = reducer(state0, action);
   console.log("state1", state1)
-  return deepFreeze(state1);
+    return deepFreeze(state1);
 };
 
 let store = createStore(root_reducer);
