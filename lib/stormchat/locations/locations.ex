@@ -98,6 +98,23 @@ defmodule Stormchat.Locations do
     location.id
   end
 
+  # returns the current location of the given user
+  # if it was updated less than 24 hours ago
+  def get_current_location(user_id) do
+    now = DateTime.utc_now()
+
+    query = from l in Location,
+      where: l.user_id == ^user_id and l.name == "current_location"
+
+    location = Repo.one(query)
+
+    if DateTime.diff(now, location.updated_at) > 86400 do
+      nil
+    else
+      location
+    end
+  end
+
   @doc """
   Creates a location, gets fips codes associated with that locations,
   and creates the associdated locations_counties

@@ -3,6 +3,7 @@ defmodule StormchatWeb.UserController do
 
   alias Stormchat.Users
   alias Stormchat.Users.User
+  alias Stormchat.Locations
 
   action_fallback StormchatWeb.FallbackController
 
@@ -14,6 +15,8 @@ defmodule StormchatWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Users.create_user(user_params) do
+      Locations.create_location(%{name: "current_location", user_id: user.id, lat: 0, long: 0})
+
       conn
       |> put_status(:created)
       |> put_resp_header("location", user_path(conn, :show, user))

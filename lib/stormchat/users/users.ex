@@ -22,7 +22,7 @@ defmodule Stormchat.Users do
     Repo.all(User)
   end
 
-  def get_affected_users(alert_id) do
+  def get_affected_user_count(alert_id) do
     query =
       from u in User,
         join: l in Location, on: l.user_id == u.id,
@@ -31,7 +31,9 @@ defmodule Stormchat.Users do
         where: c.alert_id == ^alert_id,
         distinct: u.id
 
-    Repo.all(query)
+    users = Repo.all(query)
+
+    Enum.count(users)
   end
 
   @doc """

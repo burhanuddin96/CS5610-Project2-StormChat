@@ -261,6 +261,7 @@ defmodule Stormchat.Alerts do
         select: a
 
     Repo.all(query)
+    |> filter_expired_current_locations()
   end
 
   def alert_limit do
@@ -283,6 +284,7 @@ defmodule Stormchat.Alerts do
         select: a
 
     Repo.all(query)
+    |> filter_expired_current_locations()
   end
 
   def get_older_active_alerts(user_id, oldest_id) do
@@ -303,6 +305,7 @@ defmodule Stormchat.Alerts do
         select: a
 
     Repo.all(query)
+    |> filter_expired_current_locations()
   end
 
   def get_historical_alerts(user_id) do
@@ -321,6 +324,7 @@ defmodule Stormchat.Alerts do
         select: a
 
     Repo.all(query)
+    |> filter_expired_current_locations()
   end
 
   def get_older_historical_alerts(user_id, oldest_id) do
@@ -341,6 +345,12 @@ defmodule Stormchat.Alerts do
         select: a
 
     Repo.all(query)
+    |> filter_expired_current_locations()
+  end
+
+  def filter_expired_current_locations(locations) do
+    locations
+    |> Enum.filter(fn(aa) -> aa.name != "current_location" || DateTime.diff(DateTime.utc_now, aa.updated_at) < 86400 end)
   end
 
   @doc """
