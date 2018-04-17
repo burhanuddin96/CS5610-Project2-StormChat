@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import UserNew from './user_new';
+import {GoogleApiWrapper} from 'google-maps-react';
 import HomeMap from './homemap';
 
 function Home(props) {

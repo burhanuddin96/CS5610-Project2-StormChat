@@ -9,9 +9,20 @@
 
     <title>Hello Stormchat!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+  	<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBn7f8R1_N3F-Dtz51cUyXt_BmMvkzrSDU">
+    </script>
+    <script type="text/javascript">function initMap() {
+     	console.log("Running Initmap...")
+     		if(document.getElementById('map')) {
+        	map = new google.maps.Map(document.getElementById('map'), {
+          	center: {lat: -34.397, lng: 150.644},
+          	zoom: 8
+        });}
+      }</script>
   </head>
 
-  <body>
+  <body onLoad="initMap()">
     <div class="container">
       <%= if get_flash(@conn, :info) do %>
         <p class="alert alert-info" role="alert">
