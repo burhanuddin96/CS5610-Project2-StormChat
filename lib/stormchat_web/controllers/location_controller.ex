@@ -7,8 +7,8 @@ defmodule StormchatWeb.LocationController do
   action_fallback StormchatWeb.FallbackController
 
   # returns a list of the verified user's saved locations
-  def index(conn, _params) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def index(conn, %{"token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         locations = Locations.list_locations_by_user_id(user_id)
         render(conn, "index.json", locations: locations)
@@ -19,8 +19,8 @@ defmodule StormchatWeb.LocationController do
   end
 
   # creates a saved location for the verified user
-  def create(conn, %{"location" => location_params}) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def create(conn, %{"location" => location_params, "token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         if user_id != location_params["user_id"] do
           IO.inspect({:bad_match, location_params["user_id"], user_id})
@@ -41,8 +41,8 @@ defmodule StormchatWeb.LocationController do
 
   # shows the location corresponding to the given location id
   # if and only if that locations user_id matches the verified user_id
-  def show(conn, %{"id" => id}) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def show(conn, %{"id" => id, "token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         location = Locations.get_location(id)
 
@@ -59,8 +59,8 @@ defmodule StormchatWeb.LocationController do
   end
 
   # creates a saved location for the verified user
-  def update(conn, %{"id" => id, "location" => location_params}) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def update(conn, %{"id" => id, "location" => location_params, "token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         location = Locations.get_location(id)
 
@@ -79,8 +79,8 @@ defmodule StormchatWeb.LocationController do
   end
 
   # deletes a verified user's saved location
-  def delete(conn, %{"id" => id}) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def delete(conn, %{"id" => id, "token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         location = Locations.get_location(id)
 
