@@ -11,6 +11,28 @@ defmodule StormchatWeb.PostController do
     render(conn, "index.json", posts: posts)
   end
 
+  # returns a list of a certain number of the given alert's posts by type
+  # valid types...
+  # latest: the latest chunk of posts for the given alert
+  # older: an older chunk of posts for the given alert
+  # for older, post_id should be the oldest current post
+  def index(conn, %{"token" => token, "type" => type, "alert_id" => alert_id, "post_id" => post_id}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+      {:ok, _user_id} ->
+        posts =
+          case type do
+            "latest" -> Posts.get_latest_posts(alert_id)
+            "older" -> Posts.get_older_posts(post_id)
+            _else -> Posts.get_latest_posts(alert_id)
+          end
+
+        render(conn, "index.json", posts: posts)
+      _else ->
+        conn
+        |> redirect(to: page_path(conn, :index))
+    end
+  end
+
   def create(conn, %{"post" => post_params}) do
     with {:ok, %Post{} = post} <- Posts.create_post(post_params) do
       conn

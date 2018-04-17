@@ -32,43 +32,26 @@ defmodule Stormchat.Posts do
     query =
       from p in Post,
         where: p.alert_id == ^alert_id,
-        select: p,
         order_by: [desc: p.inserted_at],
-        limit: ^pl
+        limit: ^pl,
+        select: p
 
     Repo.all(query)
   end
 
-  # returns a list of the previous "post_limit" posts, including the given post
-  def get_previous_posts(first_id) do
-    first_post = get_post(first_id)
-    alert_id = first_post.alert_id
-    inserted_at = first_post.inserted_at
+  # returns a list of the the previous chunk of older posts, including the given post
+  def get_older_posts(oldest_id) do
+    oldest_post = get_post(oldest_id)
+    alert_id = oldest_post.alert_id
+    inserted_at = oldest_post.inserted_at
     pl = post_limit()
 
     query =
       from p in Post,
-        where: p.alert_id == ^alert_id and p.inserted_at <= ^inserted_at,
-        select: p,
+        where: p.alert_id == ^alert_id and p.inserted_at < ^inserted_at,
         order_by: [desc: p.inserted_at],
-        limit: ^pl
-
-    Repo.all(query)
-  end
-
-  # returns a list of the next "post_limit" posts, including the given post
-  def get_next_posts(last_id) do
-    last_post = get_post(last_id)
-    alert_id = last_post.alert_id
-    inserted_at = last_post.inserted_at
-    pl = post_limit()
-
-    query =
-      from p in Post,
-        where: p.alert_id == ^alert_id and p.inserted_at >= ^inserted_at,
-        select: p,
-        order_by: [desc: p.inserted_at],
-        limit: ^pl
+        limit: ^pl,
+        select: p
 
     Repo.all(query)
   end

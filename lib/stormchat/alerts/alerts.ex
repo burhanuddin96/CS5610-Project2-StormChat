@@ -257,7 +257,8 @@ defmodule Stormchat.Alerts do
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
         where: l.user_id == ^user_id,
-        distinct: a.id
+        distinct: a.id,
+        select: a
 
     Repo.all(query)
   end
@@ -266,7 +267,7 @@ defmodule Stormchat.Alerts do
     10
   end
 
-  def get_latest_active_alerts(user_id) do
+  def get_active_alerts(user_id) do
     now = DateTime.utc_now()
     al = alert_limit()
 
@@ -278,32 +279,35 @@ defmodule Stormchat.Alerts do
         where: l.user_id == ^user_id and a.expires > ^now,
         distinct: a.id,
         order_by: [desc: a.inserted_at],
-        limit: ^al
+        limit: ^al,
+        select: a
 
     Repo.all(query)
   end
 
-  def get_previous_active_alerts(user_id, first_id) do
+  def get_older_active_alerts(user_id, oldest_id) do
     now = DateTime.utc_now()
     al = alert_limit()
-    first_alert = get_alert(first_id)
-    inserted_at = first_alert.inserted_at
+    oldest_alert = get_alert(oldest_id)
+    inserted_at = oldest_alert.inserted_at
 
     query =
       from a in Alert,
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires > ^now and a.inserted_at <= ^inserted_at,
+        where: l.user_id == ^user_id and a.expires > ^now and a.inserted_at < ^inserted_at,
         distinct: a.id,
-        order_by: [desc: a.effective],
-        limit: ^al
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
 
     Repo.all(query)
   end
 
   def get_historical_alerts(user_id) do
     now = DateTime.utc_now()
+    al = alert_limit()
 
     query =
       from a in Alert,
@@ -311,7 +315,30 @@ defmodule Stormchat.Alerts do
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
         where: l.user_id == ^user_id and a.expires <= ^now,
-        distinct: a.id
+        distinct: a.id,
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
+
+    Repo.all(query)
+  end
+
+  def get_older_historical_alerts(user_id, oldest_id) do
+    now = DateTime.utc_now()
+    al = alert_limit()
+    oldest_alert = get_alert(oldest_id)
+    inserted_at = oldest_alert.inserted_at
+
+    query =
+      from a in Alert,
+        join: c in County, on: c.alert_id == a.id,
+        join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
+        join: l in Location, on: l.id == lc.location_id,
+        where: l.user_id == ^user_id and a.expires <= ^now and a.inserted_at < ^inserted_at,
+        distinct: a.id,
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
 
     Repo.all(query)
   end

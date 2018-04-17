@@ -22,8 +22,8 @@ defmodule StormchatWeb.UserController do
   end
 
   # returns the verified user (view doesn't include password_hash)
-  def show(conn, _params) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def show(conn, %{"token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         user = Users.get_user!(user_id)
         render(conn, "show.json", user: user)
@@ -34,8 +34,8 @@ defmodule StormchatWeb.UserController do
   end
 
   # verifies that the token user matches the user to be updated, then updates
-  def update(conn, %{"user_params" => user_params}) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def update(conn, %{"user_params" => user_params, "token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         user = Users.get_user(user_id)
 
@@ -54,8 +54,8 @@ defmodule StormchatWeb.UserController do
   end
 
   # verifies that the token user matches the user to be deleted, then deletes
-  def delete(conn, _params) do
-    case Phoenix.Token.verify(conn, "auth token", conn.assigns[:token], max_age: 86400) do
+  def delete(conn, %{"token" => token}) do
+    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
         user = Users.get_user!(user_id)
         with {:ok, %User{}} <- Users.delete_user(user) do
