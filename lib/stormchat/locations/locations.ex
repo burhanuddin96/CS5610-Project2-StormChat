@@ -66,7 +66,7 @@ defmodule Stormchat.Locations do
   def list_locations_by_user_id(user_id) do
     query =
       from l in Location,
-        where: l.user_id == ^user_id
+        where: l.user_id == ^user_id and (l.description != "current_location" or l.updated_at > ago(24, "hour"))
 
     Repo.all(query)
   end
