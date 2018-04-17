@@ -4,8 +4,8 @@ defmodule Stormchat.Posts.Post do
 
   schema "posts" do
     field :body, :string
-    belongs_to :alerts, Stormchat.Alerts.Alert
-    belongs_to :users, Stormchat.Users.User
+    belongs_to :alert, Stormchat.Alerts.Alert
+    belongs_to :user, Stormchat.Users.User
 
     timestamps()
   end
