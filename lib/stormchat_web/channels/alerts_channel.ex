@@ -26,6 +26,14 @@ defmodule StormchatWeb.AlertsChannel do
 
   # sent when a new post is to be created, returns a list of this channel's latest posts
   def handle_in("post", attrs, socket) do
+    current_user = socket.assigns["user_id"]
+    post_user = attrs[:user_id]
+
+    if current_user != post_user do
+      IO.inspect({:bad_match, current_user, post_user})
+      raise "hax!"
+    end
+
     {msg, resp} = Posts.create_post(attrs)
 
     case msg do

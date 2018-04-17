@@ -39,7 +39,6 @@ defmodule StormchatWeb.LocationController do
     end
   end
 
-
   # shows the location corresponding to the given location id
   # if and only if that locations user_id matches the verified user_id
   def show(conn, %{"id" => id, "token" => token}) do

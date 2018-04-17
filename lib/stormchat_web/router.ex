@@ -17,14 +17,13 @@ defmodule StormchatWeb.Router do
   scope "/api/v1", StormchatWeb do
     pipe_through :api
 
-    resources "/users", UserController, except: [:new, :edit]
-    resources "/alerts", AlertController, except: [:new, :edit]
-    post "/alerts", AlertController, :get_alerts
-    resources "/counties", CountyController, except: [:new, :edit]
+    resources "/users", UserController, except: [:new, :edit, :index]
+    resources "/alerts", AlertController, except: [:new, :edit, :create, :update, :delete]
+    resources "/counties", CountyController, except: [:new, :edit, :index, :create, :update, :delete]
     resources "/locations", LocationController, except: [:new, :edit]
     post "/locations", LocationController, :current
-    resources "/location_counties", LocationCountyController, except: [:new, :edit]
-    resources "/posts", PostController, except: [:new, :edit]
+    resources "/location_counties", LocationCountyController, except: [:new, :edit, :index, :create, :update, :delete]
+    resources "/posts", PostController, except: [:new, :edit, :index, :create, :update, :delete]
     post "/token", TokenController, :create
   end
 
