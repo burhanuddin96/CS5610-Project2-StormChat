@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 import Spinner from './spinner';
+import api from '../api';
 
 function titleCase(str) {
   return str.toLowerCase()
@@ -16,6 +18,7 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {editing: false};
+    api.getSavedLocations();
   }
 
   render() {

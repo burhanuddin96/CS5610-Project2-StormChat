@@ -23,7 +23,7 @@ class LogOut extends React.Component {
       <nav className="ml-auto navbar-nav">
         <NavItem>
           <span className="navbar-text text-warning">
-            Hi, {this.props.user.username}!
+            Hi, {this.props.user.name}!
           </span>
         </NavItem>
         <NavItem>

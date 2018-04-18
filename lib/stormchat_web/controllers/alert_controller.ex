@@ -6,7 +6,7 @@ defmodule StormchatWeb.AlertController do
 
   action_fallback StormchatWeb.FallbackController
 
-  # returns a list of a certain umber of the verified user's alerts by type
+  # returns a list of a certain number of the verified user's alerts by type
   # valid types...
   # active: the latest chunk of active alerts for the verified user
   # active_older: an older chunk of active alerts for the verified user
@@ -28,40 +28,7 @@ defmodule StormchatWeb.AlertController do
         render(conn, "index.json", alerts: alerts)
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
-    end
-  end
-
-  # TODO: determine if this will be needed
-  def create(conn, %{"alert" => alert_params}) do
-    with {:ok, %Alert{} = alert} <- Alerts.create_alert(alert_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", alert_path(conn, :show, alert))
-      |> render("show.json", alert: alert)
-    end
-  end
-
-  # TODO: determine if this will be needed
-  def show(conn, %{"id" => id}) do
-    alert = Alerts.get_alert!(id)
-    render(conn, "show.json", alert: alert)
-  end
-
-  # TODO: determine if this will be needed
-  def update(conn, %{"id" => id, "alert" => alert_params}) do
-    alert = Alerts.get_alert!(id)
-
-    with {:ok, %Alert{} = alert} <- Alerts.update_alert(alert, alert_params) do
-      render(conn, "show.json", alert: alert)
-    end
-  end
-
-  # TODO: determine if this will be needed
-  def delete(conn, %{"id" => id}) do
-    alert = Alerts.get_alert!(id)
-    with {:ok, %Alert{}} <- Alerts.delete_alert(alert) do
-      send_resp(conn, :no_content, "")
+        #|> redirect(to: page_path(conn, :index))
     end
   end
 end

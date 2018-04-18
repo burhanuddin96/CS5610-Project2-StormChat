@@ -20,6 +20,7 @@ import deepFreeze from 'deep-freeze';
  *     password: "",
  *     password_confirmation: ""
  *   },
+ *   weather: null,
  *   chat: "",
  *   success: "",
  *   error: ""
@@ -72,12 +73,30 @@ function login(state = emptyLogin, action) {
   }
 }
 
+function weather(state = null, action) {
+  switch (action.type) {
+    case 'WEATHER':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
 function chat(state = "", action) {
   switch (action.type) {
     case 'UPDATE_CHAT':
       return action.chat;
     case 'RESET_FORMS':
       return "";
+    default:
+      return state;
+  }
+}
+
+function locations(state = [], action) {
+  switch (action.type) {
+    case 'SAVED_LOCATIONS':
+      return action.data;
     default:
       return state;
   }
@@ -112,7 +131,7 @@ function error(state = "", action) {
 function root_reducer(state0, action) {
   console.log("state0", state0);
   let reducer = combineReducers(
-    {user, login, signUp, chat, success, error}
+    {user, login, signUp, weather, chat, locations, success, error}
   );
   let state1 = reducer(state0, action);
   console.log("state1", state1)

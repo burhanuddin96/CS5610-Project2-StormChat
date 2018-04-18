@@ -4,6 +4,16 @@ const weatherAPI = "ae122e8192b014da71c80636464532d8";
 
 class TheServer {
 
+  constructor() {
+    this.token = null;
+    store.subscribe(this.listener.bind(this));
+  }
+
+  listener() {
+    let state = store.getState();
+    this.token = state.user ? state.user.token : null;
+  }
+
   submitSignUp(data, onSuccess, onError) {
     $.ajax("/api/v1/users", {
       method: "post",
@@ -37,8 +47,8 @@ class TheServer {
           type: 'SET_USER',
           user: resp
         });
+        onSuccess();
       },
-      success: (resp) => { onSuccess(); },
       error: (resp) => {
         store.dispatch({
           type: 'ERROR_MSG',
@@ -48,18 +58,22 @@ class TheServer {
     });
   }
 
-  //TODO
-  updateUser(data) {
-    let path = "/api/v1/users/" + data.user_params.id;
-
-    $.ajax(path, {
-      method: "patch",
-      dataType: "json",
-      contentType: "application/json; charset=UTF-8",
-      data: JSON.stringify({ token: data.token, user_params: data.user_params }),
+  getSavedLocations() {
+    if (!this.token) {
+      store.dispatch({
+        type: 'ERROR_MSG',
+        msg: 'No token!'
+      });
+      return;
+    }
+    $.ajax(`/api/v1/locations?token=${this.token}`, {
+      method: "get",
       success: (resp) => {
-        this.request_users();
-      },
+        store.dispatch({
+          type: 'SAVED_LOCATIONS',
+          data: resp.data
+        });
+      }
     });
   }
 

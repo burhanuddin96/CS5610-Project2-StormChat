@@ -13,16 +13,6 @@ defmodule StormchatWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", StormchatWeb do
-    pipe_through :browser # Use the default browser stack
-
-    get "/", PageController, :index
-    get "/home", PageController, :index
-    get "/alert/:alert_id", PageController, :index
-    # post "/session", SessionController, :create
-    # delete "/session", SessionController, :delete
-  end
-
   # Other scopes may use custom stacks.
   scope "/api/v1", StormchatWeb do
     pipe_through :api
@@ -34,5 +24,13 @@ defmodule StormchatWeb.Router do
     resources "/location_counties", LocationCountyController, except: [:new, :edit]
     resources "/posts", PostController, except: [:new, :edit]
     post "/token", TokenController, :create
+  end
+
+  scope "/", StormchatWeb do
+    pipe_through :browser # Use the default browser stack
+
+    get "/", PageController, :index
+    get "/home", PageController, :index
+    get "/alert/:alert_id", PageController, :index
   end
 end

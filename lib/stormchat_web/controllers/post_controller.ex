@@ -29,7 +29,7 @@ defmodule StormchatWeb.PostController do
         render(conn, "index.json", posts: posts)
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        #|> redirect(to: page_path(conn, :index))
     end
   end
 
@@ -39,19 +39,6 @@ defmodule StormchatWeb.PostController do
       |> put_status(:created)
       |> put_resp_header("location", post_path(conn, :show, post))
       |> render("show.json", post: post)
-    end
-  end
-
-  def show(conn, %{"id" => id}) do
-    post = Posts.get_post!(id)
-    render(conn, "show.json", post: post)
-  end
-
-  def update(conn, %{"id" => id, "post" => post_params}) do
-    post = Posts.get_post!(id)
-
-    with {:ok, %Post{} = post} <- Posts.update_post(post, post_params) do
-      render(conn, "show.json", post: post)
     end
   end
 
