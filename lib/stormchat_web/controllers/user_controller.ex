@@ -34,7 +34,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
 
@@ -54,7 +54,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
 
@@ -74,7 +74,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
 end

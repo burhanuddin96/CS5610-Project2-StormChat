@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import UserNew from './user_new';
 import HomeMap from './homemap';
 import SearchLocation from './searchlocation';
+import AlertMap from './alertmap';
 
 function Home(props) {
   if (props.token == null) {
@@ -16,7 +17,7 @@ function Home(props) {
   } else {
     return (
       <div>
-      	<HomeMap />
+      	<AlertMap polygons={"These are the polygons..."} />
         Chats (not yet functional)
       </div>
     );

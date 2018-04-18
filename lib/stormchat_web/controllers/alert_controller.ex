@@ -33,7 +33,7 @@ defmodule StormchatWeb.AlertController do
         render(conn, "index.json", alerts: alerts)
       _else ->
         conn
-        |> render(conn, "error.json", error: "", type: "token")
+        |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
 
