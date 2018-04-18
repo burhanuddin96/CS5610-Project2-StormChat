@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { NavItem, Navbar, Modal, ModalHeader, ModalBody, ModalFooter,
          Form, FormGroup, FormFeedback, Label, Input, Button } from 'reactstrap';
 import { connect } from 'react-redux';
@@ -9,12 +9,13 @@ class UserNav extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {redirect: false, settings: false, errors: {}};
+    this.state = {settings: false, errors: {}};
   }
 
   logOut() {
     this.props.dispatch({type: 'DELETE_USER'});
-    this.setState({redirect: true});
+    this.props.dispatch({type: 'RESET_SUCCESS'});
+    this.props.dispatch({type: 'RESET_ERROR'});
   }
 
   showSettings() {
@@ -63,10 +64,7 @@ class UserNav extends React.Component {
   }
 
   deleteAccount() {
-    api.deleteAccount(
-      this.props.user.user_id,
-      (() => this.setState({redirect: true})).bind(this)
-    );
+    api.deleteAccount(this.props.user.user_id);
   }
 
   renderSettings() {
@@ -169,9 +167,6 @@ class UserNav extends React.Component {
   }
 
   render() {
-    if (this.state.redirect) {
-      return <Redirect to="/" />;
-    }
     return (
       <nav className="ml-auto navbar-nav">
         <NavItem>

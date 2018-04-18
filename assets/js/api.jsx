@@ -14,6 +14,16 @@ class TheServer {
     this.token = state.user ? state.user.token : null;
   }
 
+  checkToken(resp) {
+    if (resp && resp.error && resp.error == 'TOKEN_UNAUTHORIZED') {
+      store.dispatch({type: 'DELETE_USER'});
+      store.dispatch({
+        type: 'ERROR_MSG',
+        msg: 'Session ended. Please log back in.'
+      });
+    }
+  }
+
   submitSignUp(data, onSuccess, onError) {
     $.ajax("/api/v1/users", {
       method: "post",
@@ -95,7 +105,7 @@ class TheServer {
     });
   }
 
-  deleteAccount(userId, onSuccess) {
+  deleteAccount(userId) {
     $.ajax(`/api/v1/users/${userId}?token=${this.token}`, {
       method: "delete",
       success: (resp) => {
@@ -104,7 +114,6 @@ class TheServer {
           type: 'SUCCESS_MSG',
           msg: 'Account deleted successfully'
         });
-        onSuccess();
       }
     });
   }
