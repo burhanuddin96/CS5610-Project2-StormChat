@@ -27,13 +27,13 @@ defmodule StormchatWeb.AlertController do
             "active_older_by_latlong" -> Alerts.get_older_active_by_latlong(params["lat"], params["long"], params["alert_id"])
             "historical_by_latlong" -> Alerts.get_historical_by_latlong(params["lat"], params["long"])
             "historical_older_by_latlong" -> Alerts.get_older_historical_by_latlong(params["lat"], params["long"], params["alert_id"])
-            _else -> Alerts.list_alerts_by_user_id(user_id)
+            _else -> []
           end
 
         render(conn, "index.json", alerts: alerts)
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        |> render(conn, "error.json", error: "", type: "token")
     end
   end
 
