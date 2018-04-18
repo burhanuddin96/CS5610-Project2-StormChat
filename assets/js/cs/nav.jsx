@@ -134,7 +134,8 @@ class UserNav extends React.Component {
               </FormGroup>
               <FormGroup>
                 <Label for="phone">Phone Number:</Label>
-                <Input type="text" name="phone" placeholder="1234567890"
+                <Input type="number" name="phone" placeholder="10-digit number"
+                       min="1000000000" max="9999999999"
                        value={this.props.settings.phone}
                        onChange={update} />
                 {this.feedback('phone')}

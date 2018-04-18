@@ -135,12 +135,21 @@ class TheServer {
     });
   }
 
-  get_lat_lng(url) {
-    $.getJSON(url, function(json) {
-      if(json['status'] == 'OK')
-        console.log("JSON: ", json['results'][0]['geometry']['location']);
+  addLocation(url) {
+    $.getJSON(url, (json) => {
+      if(json['status'] == 'OK') {
+        let name = json['results'][0]['formatted_address'];
+        let lat_lng = json['results'][0]['geometry']['location'];
+        console.log(name, lat_lng);
+      } else {
+        store.dispatch({
+          type: 'ERROR_MSG',
+          msg: 'Could not find location. Try entering an address, postal code, or city name.'
+        });
+      }
     });
   }
 }
+
 
 export default new TheServer();

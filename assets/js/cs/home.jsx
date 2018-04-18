@@ -58,8 +58,9 @@ class Home extends React.Component {
 
   renderForm() {
     if (this.state.editing) {
-      <SearchLocation />
+      return <SearchLocation />;
     }
+    return '';
   }
 
   renderLocations() {

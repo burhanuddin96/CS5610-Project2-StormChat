@@ -169,7 +169,8 @@ class Splash extends React.Component {
           <FormGroup row>
             <Label for="phone" sm={3}>Phone Number:</Label>
             <Col sm={9}>
-              <Input type="text" name="phone" placeholder="1234567890"
+              <Input type="number" name="phone" placeholder="10-digit number"
+                     min="1000000000" max="9999999999"
                      onChange={update} />
               {this.feedback('phone')}
             </Col>
