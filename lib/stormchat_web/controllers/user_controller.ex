@@ -3,7 +3,7 @@ defmodule StormchatWeb.UserController do
 
   alias Stormchat.Users
   alias Stormchat.Users.User
-  alias Stormchat.Locations
+  # alias Stormchat.Locations
 
   action_fallback StormchatWeb.FallbackController
 

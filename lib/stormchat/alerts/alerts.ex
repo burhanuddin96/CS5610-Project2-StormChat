@@ -136,8 +136,6 @@ defmodule Stormchat.Alerts do
 
         xpath_result = :xmerl_xpath.string('//instruction', xml_doc)
 
-        # IO.inspect(xpath_result)
-
         # get the instruction string, set to "none" if there is no instruction
         nstrct =
           case xpath_result do
@@ -181,7 +179,69 @@ defmodule Stormchat.Alerts do
           List.flatten(list_of_user_lists)
           |> Enum.uniq()
 
-        Enum.each(affected_users, fn(uu) -> notify(uu, alert) end)
+
+        # filter by user notification preferences
+        affected_users
+        |> Enum.filter(fn(uu) -> matches_preferences(alert, uu) end)
+        |> Enum.each(fn(uu) -> notify(uu, alert) end)
+    end
+  end
+
+  # returns true if the user's preferences are set
+  # such that they want to be notified of the given alert
+  # returns false if the user's are set
+  # such that they don't want to be notified of the given alert
+  # preferences filter by urgency, severity, and certainty
+  def matches_preferences(alert, user_id) do
+    user = Users.get_user(user_id)
+
+    urgency = true
+    severity = true
+    certainty = true
+
+    immediate = ["Immediate"]
+    expected = ["Immediate", "Expected"]
+    future = ["Immediate", "Expected", "Future"]
+    past = ["Immediate", "Expected", "Future", "Past"]
+
+    extreme = ["Extreme"]
+    severe = ["Extreme", "Severe"]
+    moderate = ["Extreme", "Severe", "Moderate"]
+    minor = ["Extreme", "Severe", "Moderate", "Minor"]
+
+    observed = ["Observed"]
+    likely = ["Observed", "Likely"]
+    possible = ["Observed", "Likely", "Possible"]
+    unlikely = ["Observed", "Likely", "Possible", "Unlikely"]
+
+    if user != nil do
+      urgency =
+        case user.urgency do
+          "Immediate" -> Enum.member?(alert.urgency, immediate)
+          "Expected" -> Enum.member?(alert.urgency, expected)
+          "Future" -> Enum.member?(alert.urgency, future)
+          _else -> Enum.member?(alert.urgency, past)
+        end
+
+      severity =
+        case user.severity do
+          "Extreme" -> Enum.member?(alert.severity, extreme)
+          "Severe" -> Enum.member?(alert.severity, severe)
+          "Moderate" -> Enum.member?(alert.severity, moderate)
+          _else -> Enum.member?(alert.severity, minor)
+        end
+
+      certainty =
+        case user.certainty do
+          "Observed" -> Enum.member?(alert.certainty, observed)
+          "Likely" -> Enum.member?(alert.certainty, likely)
+          "Possible" -> Enum.member?(alert.certainty, possible)
+          _else -> Enum.member?(alert.certainty, unlikely)
+        end
+
+      urgency && severity && certainty
+    else
+      false
     end
   end
 
@@ -362,7 +422,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_active_by_latlong(user_id, lat, long) do
+  def get_active_by_latlong(lat, long) do
     fips_codes = Locations.get_fips_by_latlong(lat, long)
     now = DateTime.utc_now()
     al = alert_limit()
@@ -379,7 +439,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_older_active_by_latlong(user_id, lat, long, oldest_id) do
+  def get_older_active_by_latlong(lat, long, oldest_id) do
     fips_codes = Locations.get_fips_by_latlong(lat, long)
     now = DateTime.utc_now()
     al = alert_limit()
@@ -398,7 +458,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_historical_by_latlong(user_id, lat, long) do
+  def get_historical_by_latlong(lat, long) do
     fips_codes = Locations.get_fips_by_latlong(lat, long)
     now = DateTime.utc_now()
     al = alert_limit()
@@ -415,7 +475,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_older_historical_by_latlong(user_id, lat, long, oldest_id) do
+  def get_older_historical_by_latlong(lat, long, oldest_id) do
     fips_codes = Locations.get_fips_by_latlong(lat, long)
     now = DateTime.utc_now()
     al = alert_limit()
