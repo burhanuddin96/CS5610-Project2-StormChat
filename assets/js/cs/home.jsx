@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Button, Card, CardHeader, Collapse, CardBody } from 'reactstrap';
 import Spinner from './spinner';
 import HomeMap from './homemap';
@@ -41,7 +42,7 @@ class Home extends React.Component {
             </div>
             <div className="col-5">
               <div className="border border-info rounded ml-3 p-3">
-                <h2 className="d-inline-block">Alerts by Location</h2>
+                <h3 className="d-inline-block">Alerts by Location</h3>
                 <Button color="info" className="float-right"
                         onClick={this.toggleEdit.bind(this)}>
                   {this.state.editing ? "Done" : "Edit"}
@@ -175,33 +176,33 @@ class Location extends React.Component {
       alerts = <Spinner />;
     } else {
       alerts = _.map(this.state.alerts, (a) => {
-        return <Alert alert_id={a.id} />;
+        return <Alert key={a.id} alertInfo={a} />;
       });
     }
 
     let button = '';
     if (this.props.editing) {
       button = (
-        <Button color="warning"
-                className="float-right"
-                onClick={this.deleteLocation.bind(this)}>
+        <span className="float-right btn-link text-warning"
+              onClick={this.deleteLocation.bind(this)}>
           Delete
-        </Button>
+        </span>
       );
     } else {
       button = (
-        <Button color="info"
-                className="float-right"
-                onClick={this.toggle.bind(this)}>
+        <span className="float-right btn-link text-info"
+              onClick={this.toggle.bind(this)}>
           {this.state.expanded ? "Hide" : "Show"}
-        </Button>
+        </span>
       );
     }
 
     return (
       <Card className="mt-3">
         <CardHeader>
-          <h4 className="d-inline">{this.props.loc.description}</h4>
+          <h5 className="m-0 d-inline-block truncated">
+            {this.props.loc.description}
+          </h5>
           {button}
         </CardHeader>
         <Collapse isOpen={this.state.expanded && !this.props.editing}>
@@ -217,8 +218,12 @@ class Location extends React.Component {
 function Alert(params) {
   return (
     <div>
-      <Link to={`/alert/${params.alert_id}`}>Alert Name</Link>
-      <p>extra info?</p>
+      <Link to={`/alert/${params.alertInfo.id}`} className="text-success">
+        {params.alertInfo.title}
+      </Link>
+      <br/>
+      <small>{params.alertInfo.instruction.substring(0,140)}</small>
+      <hr/>
     </div>
   );
 }

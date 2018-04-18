@@ -28,9 +28,9 @@ class StormChatCore extends React.Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (this.props.location != nextProps.location) {
-      //if (nextProps.location.pathname != '/') {
-      //  this.props.dispatch({type: 'RESET_SUCCESS'});
-      //}
+      if (nextProps.location.pathname != '/home') {
+        this.props.dispatch({type: 'RESET_SUCCESS'});
+      }
       this.props.dispatch({type: 'RESET_ERROR'});
       this.props.dispatch({type: 'RESET_FORMS'});
     }

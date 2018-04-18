@@ -14,6 +14,13 @@
   background-size: contain;
 }
 
+.truncated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+}
+
 .map {
   min-height: 700px;
 }
