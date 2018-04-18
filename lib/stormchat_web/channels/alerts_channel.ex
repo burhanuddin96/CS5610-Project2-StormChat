@@ -10,7 +10,7 @@ defmodule StormchatWeb.AlertsChannel do
   # - polygons: a list of the polygons affected by this channel's alert
   # - post: a list of the latest posts for this channel's alert
   # - users: a list of users with saved locations affected by this channel's alert
-  def join("alerts:" <> alert_id, payload, socket) do
+  def join("alerts:" <> alert_id, _payload, socket) do
     alert = Stormchat.Alerts.get_alert(alert_id)
 
     if alert == nil do
@@ -18,9 +18,9 @@ defmodule StormchatWeb.AlertsChannel do
     else
       polygons = Locations.get_affected_polygons(alert.id)
       posts = Posts.get_latest_posts(alert.id)
-      users = Users.get_affected_user_count(alert.id)
+      user_count = Users.get_affected_user_count(alert.id)
 
-      {:ok, %{"alert" => alert, "polygons" => polygons, "posts" => posts, "users" => users}, socket}
+      {:ok, %{"alert" => alert, "polygons" => polygons, "posts" => posts, "user_count" => user_count}, socket}
     end
   end
 
@@ -51,21 +51,21 @@ defmodule StormchatWeb.AlertsChannel do
     {:reply, {:ok, %{ "posts" => Posts.get_older_posts(oldest_id)}}, socket}
   end
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
-  def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
-  end
-
-  # It is also common to receive messages from the client and
-  # broadcast to everyone in the current topic (alerts:alert_id).
-  def handle_in("shout", payload, socket) do
-    broadcast socket, "shout", payload
-    {:noreply, socket}
-  end
+  # # Channels can be used in a request/response fashion
+  # # by sending replies to requests from the client
+  # def handle_in("ping", payload, socket) do
+  #   {:reply, {:ok, payload}, socket}
+  # end
+  #
+  # # It is also common to receive messages from the client and
+  # # broadcast to everyone in the current topic (alerts:alert_id).
+  # def handle_in("shout", payload, socket) do
+  #   broadcast socket, "shout", payload
+  #   {:noreply, socket}
+  # end
 
   # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
-  end
+  # defp authorized?(_payload) do
+  #   true
+  # end
 end
