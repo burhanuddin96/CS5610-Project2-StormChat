@@ -151,25 +151,35 @@ class Location extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {expanded: false}
+    this.state = {expanded: false, alerts: []}
   }
 
-  toggle() { this.setState({expanded: !this.state.expanded}); }
+  toggle() {
+    if (!this.state.expanded && this.state.alerts.length == 0) {
+      api.getAlerts(
+        {type: 'active_by_location',
+         location_id: this.props.loc.id},
+        ((alerts) => this.setState({alerts: alerts})).bind(this)
+      );
+    }
+    this.setState({expanded: !this.state.expanded});
+  }
 
   deleteLocation() {
     api.deleteLocation(this.props.loc.id);
   }
 
   render() {
-    let alerts = ''; //TODO load alerts for location
-    if (!alerts) {
+    let alerts = '';
+    if (this.state.alerts.length == 0) {
       alerts = <Spinner />;
     } else {
-      alerts = [];
+      alerts = _.map(this.state.alerts, (a) => {
+        return <Alert alert_id={a.id} />;
+      });
     }
 
     let button = '';
-
     if (this.props.editing) {
       button = (
         <Button color="warning"

@@ -2,6 +2,18 @@ import store from './store';
 
 const weatherAPI = "ae122e8192b014da71c80636464532d8";
 
+function badToken(resp) {
+  if (resp && resp.error && resp.error == 'TOKEN_UNAUTHORIZED') {
+    store.dispatch({type: 'DELETE_USER'});
+    store.dispatch({
+      type: 'ERROR_MSG',
+      msg: 'Session ended. Please log back in.'
+    });
+    return true;
+  }
+  return false;
+}
+
 class TheServer {
 
   constructor() {
@@ -12,16 +24,6 @@ class TheServer {
   listener() {
     let state = store.getState();
     this.token = state.user ? state.user.token : null;
-  }
-
-  checkToken(resp) {
-    if (resp && resp.error && resp.error == 'TOKEN_UNAUTHORIZED') {
-      store.dispatch({type: 'DELETE_USER'});
-      store.dispatch({
-        type: 'ERROR_MSG',
-        msg: 'Session ended. Please log back in.'
-      });
-    }
   }
 
   submitSignUp(data, onSuccess, onError) {
@@ -87,6 +89,7 @@ class TheServer {
         user_params: data
       }),
       success: (resp) => {
+        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'SUCCESS_MSG',
           msg: 'Settings updated'
@@ -109,6 +112,7 @@ class TheServer {
     $.ajax(`/api/v1/users/${userId}?token=${this.token}`, {
       method: "delete",
       success: (resp) => {
+        if (badToken(resp)) { return; }
         store.dispatch({type: 'DELETE_USER'});
         store.dispatch({
           type: 'SUCCESS_MSG',
@@ -122,6 +126,7 @@ class TheServer {
     $.ajax(`/api/v1/locations?token=${this.token}`, {
       method: "get",
       success: (resp) => {
+        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'SAVED_LOCATIONS',
           data: resp.data
@@ -135,7 +140,6 @@ class TheServer {
     $.ajax(path, {
       method: "get",
       success: (resp) => {
-        console.log(resp);
         store.dispatch({
           type: 'WEATHER',
           data: resp
@@ -162,6 +166,7 @@ class TheServer {
             }
           }),
           success: (resp) => {
+            if (badToken(resp)) { return; }
             store.dispatch({
               type: 'ADD_LOCATION',
               data: resp.data
@@ -191,6 +196,7 @@ class TheServer {
     $.ajax(`/api/v1/locations/${loc_id}?token=${this.token}`, {
       method: 'delete',
       success: (resp) => {
+        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'DELETE_LOCATION',
           id: loc_id
@@ -206,6 +212,20 @@ class TheServer {
           msg: 'Could not delete location'
         });
         console.log(resp);
+      }
+    });
+  }
+
+  // type follows pattern (active|historical)_(older_)?by_(location|latlong)
+  getAlerts(data, onSuccess) {
+    data.token = this.token;
+    let path = '/api/v1/alerts?' + _.map(data, (v, k) => `${k}=${v}`).join('&');
+    $.ajax(path, {
+      method: 'get',
+      success: (resp) => {
+        if (badToken(resp)) { return; }
+        console.log(resp);
+        onSuccess(resp.data);
       }
     });
   }
