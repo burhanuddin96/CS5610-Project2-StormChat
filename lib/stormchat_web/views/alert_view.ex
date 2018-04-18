@@ -22,7 +22,6 @@ defmodule StormchatWeb.AlertView do
       event: alert.event,
       effective: alert.effective,
       expires: alert.expires,
-      category: alert.category,
       urgency: alert.urgency,
       severity: alert.severity,
       certainty: alert.certainty,
