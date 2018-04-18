@@ -95,18 +95,18 @@ defmodule Stormchat.Users do
 
     case msg do
       :ok ->
-        body = "new user (id:" <> resp.id <> ") needs phone number verified (" <> resp.phone <> ")"
-        Alerts.send_sms("8572721850", body)
-        Alerts.send_sms("8578694172", body)
-        Alerts.send_sms("6616458377", body)
+        notify_admin(resp)
         {msg, resp}
       :error ->
         {msg, resp}
     end
   end
 
-  def notify_admin() do
-
+  def notify_admin(user) do
+    body = "user (id:" <> user.id <> ") needs phone number verified (" <> user.phone <> ")"
+    Alerts.send_sms("8572721850", body)
+    Alerts.send_sms("8578694172", body)
+    Alerts.send_sms("6616458377", body)
   end
 
   @doc """
@@ -122,9 +122,20 @@ defmodule Stormchat.Users do
 
   """
   def update_user(%User{} = user, attrs) do
-    user
+    {msg, resp} = user
     |> User.changeset(attrs)
     |> Repo.update()
+
+    case msg do
+      :ok ->
+        if attrs["phone"] != nil do
+          notify_admin(resp)
+        end
+        {msg, resp}
+      :error ->
+        {msg, resp}
+    end
+
   end
 
   @doc """
