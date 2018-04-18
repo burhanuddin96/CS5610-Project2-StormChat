@@ -121,11 +121,20 @@ function login(state = empty_login, action) {
   }
 }
 
+function current_location(state = null, action) {
+	switch (action.type) {
+		case 'UPDATE_CURRENT_LOCATION':
+			return Object.assign({}, state, action.data);
+		default:
+			return state;
+	}
+}
+
 function root_reducer(state0, action) {
   console.log("state0", state0)
   // {tasks, users, form} is ES6 shorthand for
   // {tasks: tasks, users: users, form: form}
-  let reducer = combineReducers({users, new_user_form, edit_user_form, token, login});
+  let reducer = combineReducers({users, new_user_form, edit_user_form, token, login, current_location});
   let state1 = reducer(state0, action);
   console.log("state1", state1)
   return deepFreeze(state1);

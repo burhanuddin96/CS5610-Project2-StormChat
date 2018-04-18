@@ -53,6 +53,12 @@ class TheServer {
         this.request_users();
         this.request_current_user(resp);
       },
+      error: (resp) => {
+    		store.dispatch({
+    			type: 'LOG_OUT',
+    			msg: "Incorrect email or password.",
+    		});
+    	}
     });
   }
 
@@ -75,6 +81,13 @@ class TheServer {
         });
       },
     });
+  }
+  
+  get_lat_lng(url) {
+  	$.getJSON(url, function(json) {
+  		console.log("Status: ", json['status']);
+  		console.log("JSON: ", json['results'][0]['geometry']['location']);
+  	});
   }
 
 }

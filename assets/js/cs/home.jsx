@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import UserNew from './user_new';
 import HomeMap from './homemap';
+import SearchLocation from './searchlocation';
 
 function Home(props) {
   if (props.token == null) {

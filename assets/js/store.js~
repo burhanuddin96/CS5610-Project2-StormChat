@@ -115,7 +115,7 @@ function login(state = empty_login, action) {
     case 'UPDATE_LOGIN_FORM':
       return Object.assign({}, state, action.data);
     case 'LOG_OUT':
-      return empty_login;
+      return Object.assign({}, empty_login, {msg: action.msg});
     default:
       return state;
   }

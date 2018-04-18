@@ -5,9 +5,7 @@ import {geolocated} from 'react-geolocated';
 //import MapContainer from './mapcontainer';
 
 class HomeMap extends Component {
-	constructor(props) {
-		super(props);
-	}
+	
 	
 	render() {
 		let current_lat=null,current_lng=null,geoLocMsg;
@@ -16,17 +14,16 @@ class HomeMap extends Component {
 				if(this.props.coords){
 					current_lat = this.props.coords.latitude;
 					current_lng = this.props.coords.longitude;
-					let data = [lat: current_lat,
-						lng: current_lng]
-					this.props.dispatch({
-						type: 'UPDATE_CURRENT_LOCATION',
-						data: data
-					});
 				}
 			}
+			else
+				console.log("Geolocation is not enabled.");
 		}
-		console.log("Current Latitude:", current_lat);
-		console.log("Current Latitude:", current_lng);
+		else
+			console.log("Browser does not support Geolocation.");
+		console.log("Current Latitude ", current_lat);
+		console.log("Current Longitude ", current_lng);
+
 		console.log("Props", this.props);
 		
 		
@@ -41,23 +38,19 @@ class HomeMap extends Component {
 			className={'map'}
 			style={style}
 		>
-		<Marker
-			title={"Current Position"}
-			position={{lat: current_lat, lng: current_lng}}
-		/>
 		</Map>
 	}
 }
 
 function state2props(state) {
-	return {
+  return {
     state: state
   };
 }
 
 export default connect(state2props)(geolocated({
-	positionOptions: {enableHighAccuracy: false,},
+	positionOptions: {enableHighAccuracy: false},
 	userDecisionTimeout: 5000,
 })(GoogleApiWrapper({
 	apiKey: 'AIzaSyBn7f8R1_N3F-Dtz51cUyXt_BmMvkzrSDU'
-})(HomeMap)))
+})(HomeMap)));
