@@ -1,8 +1,8 @@
 defmodule StormchatWeb.PostController do
   use StormchatWeb, :controller
 
-  alias Stormchat.Posts
-  alias Stormchat.Posts.Post
+  # alias Stormchat.Posts
+  # alias Stormchat.Posts.Post
 
   action_fallback StormchatWeb.FallbackController
 
