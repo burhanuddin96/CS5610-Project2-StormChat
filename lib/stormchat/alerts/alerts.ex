@@ -37,8 +37,20 @@ defmodule Stormchat.Alerts do
         IO.inspect(resp)
         get_atom_feed()
       :ok ->
-        :xmerl_xpath.string('//entry', http_to_xml(resp))
-        |> Enum.map(fn (xe) -> xml_to_map(xe) end)
+        xml_doc = http_to_xml(resp)
+
+        if xml_doc == nil do
+          []
+        else
+          # strategy for catching xmerl_xpath exits via OvermindDL1
+          # https://elixirforum.com/t/rescuing-from-an-erlang-error/1132/2
+          try do
+            :xmerl_xpath.string('//entry', http_to_xml(resp))
+            |> Enum.map(fn (xe) -> xml_to_map(xe) end)
+          catch
+            :exit, _exit -> []
+          end
+        end
     end
   end
 
@@ -76,12 +88,18 @@ defmodule Stormchat.Alerts do
   def http_to_xml(resp) do
     # IO.inspect(resp)
 
-    {xml_doc, _rest} =
-      resp.body
-      |> to_charlist()
-      |> :xmerl_scan.string()
+    # strategy for catching xmerl_scan exits via OvermindDL1
+    # https://elixirforum.com/t/rescuing-from-an-erlang-error/1132/2
+    try do
+      {xml_doc, _rest} =
+        resp.body
+        |> to_charlist()
+        |> :xmerl_scan.string()
 
-    xml_doc
+      xml_doc
+    catch
+      :exit, _exit -> nil
+    end
   end
 
   def get_instruction_string(instruction_element) do
