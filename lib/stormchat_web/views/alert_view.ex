@@ -10,6 +10,10 @@ defmodule StormchatWeb.AlertView do
     %{data: render_one(alert, AlertView, "alert.json")}
   end
 
+  def render("error.json", data) do
+    data
+  end
+
   def render("alert.json", %{alert: alert}) do
     %{id: alert.id,
       identifier: alert.identifier,

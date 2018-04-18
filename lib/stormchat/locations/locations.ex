@@ -99,7 +99,7 @@ defmodule Stormchat.Locations do
 
   @doc """
   Creates a location, gets fips codes associated with that locations,
-  and creates the associdated locations_counties
+  and creates the associdated location_counties
 
   ## Examples
 

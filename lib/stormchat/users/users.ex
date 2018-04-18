@@ -22,6 +22,7 @@ defmodule Stormchat.Users do
     Repo.all(User)
   end
 
+  # returns the number of users with saved locations affected by the given alert
   def get_affected_user_count(alert_id) do
     query =
       from u in User,
@@ -77,7 +78,14 @@ defmodule Stormchat.Users do
   end
 
   @doc """
-  Creates a user.
+  Creates a user and notifies Stormchat admins
+  that their phone number needs to be verified with Twilio.
+  Twilio provides access to an api that can be used to automate
+  this verification process--but only with a paid Twilio account,
+  which we deemed to be outside the scope of this process.
+  Twilio's free account only allows SMS messaging to verified numbers,
+  so we've implemented these admin notifications
+  to help with the efficiency of this manual verification process.
 
   ## Examples
 
@@ -95,22 +103,25 @@ defmodule Stormchat.Users do
 
     case msg do
       :ok ->
-        body = "new user (id:#{resp.id}) needs phone number verified (#{resp.phone})"
-        Alerts.send_sms("8572721850", body)
-        Alerts.send_sms("8578694172", body)
-        Alerts.send_sms("6616458377", body)
+        notify_admin(resp)
         {msg, resp}
       :error ->
         {msg, resp}
     end
   end
 
-  def notify_admin() do
-
+  # notify's Stormchat admins that a new/updated phone number must be verified
+  def notify_admin(user) do
+    body = "user (id:" <> user.id <> ") needs phone number verified (" <> user.phone <> ")"
+    Alerts.send_sms("8572721850", body)
+    Alerts.send_sms("8578694172", body)
+    Alerts.send_sms("6616458377", body)
   end
 
   @doc """
-  Updates a user.
+  Updates a user and notifies admins if phone number has changed
+  for the purpose of Twilio phone number verification.
+  See doc for create_user above.
 
   ## Examples
 
@@ -122,9 +133,20 @@ defmodule Stormchat.Users do
 
   """
   def update_user(%User{} = user, attrs) do
-    user
+    {msg, resp} = user
     |> User.changeset(attrs)
     |> Repo.update()
+
+    case msg do
+      :ok ->
+        if attrs["phone"] != nil do
+          notify_admin(resp)
+        end
+        {msg, resp}
+      :error ->
+        {msg, resp}
+    end
+
   end
 
   @doc """
