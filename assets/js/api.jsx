@@ -140,7 +140,35 @@ class TheServer {
       if(json['status'] == 'OK') {
         let name = json['results'][0]['formatted_address'];
         let lat_lng = json['results'][0]['geometry']['location'];
-        console.log(name, lat_lng);
+        $.ajax('/api/v1/locations', {
+          method: 'post',
+          dataType: "json",
+          contentType: "application/json; charset=UTF-8",
+          data: JSON.stringify({
+            token: this.token,
+            location: {
+              lat: lat_lng.lat,
+              long: lat_lng.lng,
+              description: name
+            }
+          }),
+          success: (resp) => {
+            store.dispatch({
+              type: 'ADD_LOCATION',
+              data: resp
+            });
+            store.dispatch({
+              type: 'SUCCESS_MSG',
+              msg: `Successfully added ${name} to your saved locations`
+            });
+          },
+          error: (resp) {
+            store.dispatch({
+              type: 'ERROR_MSG',
+              msg: 'Could not add location. Try entering an address, postal code, or city name.'
+            });
+          }
+        });
       } else {
         store.dispatch({
           type: 'ERROR_MSG',
