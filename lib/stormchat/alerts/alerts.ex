@@ -17,6 +17,7 @@ defmodule Stormchat.Alerts do
 
   alias Stormchat.Alerts.Alert
   alias Stormchat.Alerts.County
+  alias Stormchat.Locations
   alias Stormchat.Locations.Location
   alias Stormchat.Locations.LocationCounty
   alias Stormchat.Users
@@ -274,7 +275,7 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
+        where: l.user_id == ^user_id,
         distinct: a.id,
         select: a
 
@@ -285,7 +286,7 @@ defmodule Stormchat.Alerts do
     10
   end
 
-  def get_active_alerts(user_id) do
+  def get_active_by_location(user_id, location_id) do
     now = DateTime.utc_now()
     al = alert_limit()
 
@@ -294,7 +295,7 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires > ^now  and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
+        where: l.user_id == ^user_id and l.id == ^location_id and a.expires > ^now,
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
@@ -303,7 +304,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_older_active_alerts(user_id, oldest_id) do
+  def get_older_active_by_location(user_id, location_id, oldest_id) do
     now = DateTime.utc_now()
     al = alert_limit()
     oldest_alert = get_alert(oldest_id)
@@ -314,7 +315,7 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires > ^now and a.inserted_at < ^inserted_at and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
+        where: l.user_id == ^user_id and l.id == ^location_id and a.expires > ^now and a.inserted_at < ^inserted_at,
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
@@ -323,7 +324,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_historical_alerts(user_id) do
+  def get_historical_by_location(user_id, location_id) do
     now = DateTime.utc_now()
     al = alert_limit()
 
@@ -332,7 +333,7 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires <= ^now and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
+        where: l.user_id == ^user_id and l.id == ^location_id and a.expires <= ^now,
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
@@ -341,7 +342,7 @@ defmodule Stormchat.Alerts do
     Repo.all(query)
   end
 
-  def get_older_historical_alerts(user_id, oldest_id) do
+  def get_older_historical_by_location(user_id, location_id, oldest_id) do
     now = DateTime.utc_now()
     al = alert_limit()
     oldest_alert = get_alert(oldest_id)
@@ -352,7 +353,79 @@ defmodule Stormchat.Alerts do
         join: c in County, on: c.alert_id == a.id,
         join: lc in LocationCounty, on: lc.fips_code == c.fips_code,
         join: l in Location, on: l.id == lc.location_id,
-        where: l.user_id == ^user_id and a.expires <= ^now and a.inserted_at < ^inserted_at and (l.description != "current_location" or l.updated_at > ago(24, "hour")),
+        where: l.user_id == ^user_id and l.id == ^location_id and a.expires <= ^now and a.inserted_at < ^inserted_at,
+        distinct: a.id,
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
+
+    Repo.all(query)
+  end
+
+  def get_active_by_latlong(user_id, lat, long) do
+    fips_codes = Locations.get_fips_by_latlong(lat, long)
+    now = DateTime.utc_now()
+    al = alert_limit()
+
+    query =
+      from a in Alert,
+        join: c in County, on: c.alert_id == a.id,
+        where: c.fips_code in ^fips_codes and a.expires > ^now,
+        distinct: a.id,
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
+
+    Repo.all(query)
+  end
+
+  def get_older_active_by_latlong(user_id, lat, long, oldest_id) do
+    fips_codes = Locations.get_fips_by_latlong(lat, long)
+    now = DateTime.utc_now()
+    al = alert_limit()
+    oldest_alert = get_alert(oldest_id)
+    inserted_at = oldest_alert.inserted_at
+
+    query =
+      from a in Alert,
+        join: c in County, on: c.alert_id == a.id,
+        where: c.fips_code in ^fips_codes and a.expires > ^now and a.inserted_at < ^inserted_at,
+        distinct: a.id,
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
+
+    Repo.all(query)
+  end
+
+  def get_historical_by_latlong(user_id, lat, long) do
+    fips_codes = Locations.get_fips_by_latlong(lat, long)
+    now = DateTime.utc_now()
+    al = alert_limit()
+
+    query =
+      from a in Alert,
+        join: c in County, on: c.alert_id == a.id,
+        where: c.fips_code in ^fips_codes and a.expires <= ^now,
+        distinct: a.id,
+        order_by: [desc: a.inserted_at],
+        limit: ^al,
+        select: a
+
+    Repo.all(query)
+  end
+
+  def get_older_historical_by_latlong(user_id, lat, long, oldest_id) do
+    fips_codes = Locations.get_fips_by_latlong(lat, long)
+    now = DateTime.utc_now()
+    al = alert_limit()
+    oldest_alert = get_alert(oldest_id)
+    inserted_at = oldest_alert.inserted_at
+
+    query =
+      from a in Alert,
+        join: c in County, on: c.alert_id == a.id,
+        where: c.fips_code in ^fips_codes and a.expires <= ^now and a.inserted_at < ^inserted_at,
         distinct: a.id,
         order_by: [desc: a.inserted_at],
         limit: ^al,
