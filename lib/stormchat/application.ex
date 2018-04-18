@@ -13,7 +13,7 @@ defmodule Stormchat.Application do
       # Start the endpoint when the application starts
       supervisor(StormchatWeb.Endpoint, []),
       # Start your own worker by calling: Stormchat.Worker.start_link(arg1, arg2, arg3)
-      # worker(Stormchat.Worker, [arg1, arg2, arg3]),
+      worker(Stormchat.Worker, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

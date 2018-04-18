@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
 import Spinner from './spinner';
 import HomeMap from './homemap';
+import SearchLocation from './searchlocation';
 import api from '../api';
 
 function titleCase(str) {
@@ -57,7 +58,7 @@ class Home extends React.Component {
 
   renderForm() {
     if (this.state.editing) {
-
+      <SearchLocation />
     }
   }
 

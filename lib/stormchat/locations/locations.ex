@@ -66,7 +66,7 @@ defmodule Stormchat.Locations do
   def list_locations_by_user_id(user_id) do
     query =
       from l in Location,
-        where: l.user_id == ^user_id and (l.description != "current_location" or l.updated_at > ago(24, "hour"))
+        where: l.user_id == ^user_id
 
     Repo.all(query)
   end
@@ -96,23 +96,6 @@ defmodule Stormchat.Locations do
     location = Repo.one(query)
 
     location.id
-  end
-
-  # returns the current location of the given user
-  # if it was updated less than 24 hours ago
-  def get_current_location(user_id) do
-    now = DateTime.utc_now()
-
-    query = from l in Location,
-      where: l.user_id == ^user_id and l.name == "current_location"
-
-    location = Repo.one(query)
-
-    if DateTime.diff(now, location.updated_at) > 86400 do
-      nil
-    else
-      location
-    end
   end
 
   @doc """

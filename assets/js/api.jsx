@@ -134,6 +134,13 @@ class TheServer {
       }
     });
   }
+
+  get_lat_lng(url) {
+    $.getJSON(url, function(json) {
+      if(json['status'] == 'OK')
+        console.log("JSON: ", json['results'][0]['geometry']['location']);
+    });
+  }
 }
 
 export default new TheServer();

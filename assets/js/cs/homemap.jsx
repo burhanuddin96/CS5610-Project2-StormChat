@@ -33,7 +33,6 @@ class HomeMap extends React.Component {
     if (this.props.isGeolocationAvailable &&
         this.props.isGeolocationEnabled &&
         this.props.coords) {
-      console.log("Coords", this.props.coords);
       if (this.state.interval != null) {
         clearInterval(this.state.interval);
       }

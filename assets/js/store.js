@@ -71,7 +71,7 @@ function login(state = emptyLogin, action) {
     case 'RESET_FORMS':
       return emptyLogin;
     default:
-        return state;
+      return state;
   }
 }
 
@@ -160,6 +160,7 @@ function error(state = "", action) {
       return state;
   }
 }
+
 
 function root_reducer(state0, action) {
   console.log("state0", state0);

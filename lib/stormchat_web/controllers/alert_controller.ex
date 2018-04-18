@@ -2,7 +2,6 @@ defmodule StormchatWeb.AlertController do
   use StormchatWeb, :controller
 
   alias Stormchat.Alerts
-  alias Stormchat.Alerts.Alert
 
   action_fallback StormchatWeb.FallbackController
 
@@ -13,16 +12,22 @@ defmodule StormchatWeb.AlertController do
   # historical: the latest chunk of historical alerts for the verified user
   # historical_older: an older chunk of historical alerts for the verified user
   # for older, alert_id should be the oldest current alert
-  def index(conn, %{"token" => token, "type" => type, "alert_id" => alert_id}) do
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
+  def index(conn, params) do
+    case Phoenix.Token.verify(conn, "auth token", params["token"], max_age: 86400) do
       {:ok, user_id} ->
+        type = params["type"]
+
         alerts =
           case type do
-            "active" -> Alerts.get_active_alerts(user_id)
-            "active_older" -> Alerts.get_older_active_alerts(user_id, alert_id)
-            "historical" -> Alerts.get_historical_alerts(user_id)
-            "historical_older" -> Alerts.get_older_historical_alerts(user_id, alert_id)
-            _else -> Alerts.get_active_alerts(user_id)
+            "active_by_location" -> Alerts.get_active_by_location(user_id, params["location_id"])
+            "active_older_by_location" -> Alerts.get_older_active_by_location(user_id, params["location_id"], params["alert_id"])
+            "historical_by_location" -> Alerts.get_historical_by_location(user_id, params["location_id"])
+            "historical_older_by_location" -> Alerts.get_older_historical_by_location(user_id, params["location_id"], params["alert_id"])
+            "active_by_latlong" -> Alerts.get_active_by_latlong(user_id, params["lat"], params["long"])
+            "active_older_by_latlong" -> Alerts.get_older_active_by_latlong(user_id, params["lat"], params["long"], params["alert_id"])
+            "historical_by_latlong" -> Alerts.get_historical_by_latlong(user_id, params["lat"], params["long"])
+            "historical_older_by_latlong" -> Alerts.get_older_historical_by_latlong(user_id, params["lat"], params["long"], params["alert_id"])
+            _else -> Alerts.list_alerts_by_user_id(user_id)
           end
 
         render(conn, "index.json", alerts: alerts)
