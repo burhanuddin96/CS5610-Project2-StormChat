@@ -8,6 +8,7 @@ import AuthRoute from './auth_route';
 import Nav from './nav';
 import Splash from './splash';
 import Home from './home';
+import Chat from './chat';
 
 let Alerts = connect((state) => state)((props) => {
   let success = props.success ?
@@ -45,7 +46,7 @@ class StormChatCore extends React.Component {
           <Switch>
             <AuthRoute path="/home" exact={true} render={() => <Home />} />
             <AuthRoute path="/alert/:alert_id" exact={true}
-                       render={({match}) => `ALERT ${match.params.alert_id}`} />
+                       render={({match}) => <Chat alert_id={match.params.alert_id} />} />
             <Route path="/:alert_id" exact={true}
                    render={({match}) => <Splash alert_id={match.params.alert_id} />} />
             <Route path="/" exact={true} render={() => <Splash />} />

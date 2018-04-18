@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'reactstrap';
+import { Button, Input } from 'reactstrap';
+import { Socket } from 'phoenix';
 import Spinner from './spinner';
 import HomeMap from './homemap';
 import api from '../api';
 
-class Home extends React.Component {
+class Chat extends React.Component {
 
   constructor(props) {
     super(props);
@@ -32,44 +33,51 @@ class Home extends React.Component {
   }
 
   gotAlert(alertInfo) {
-
+    console.log("ALERT", alertInfo);
+    this.setState(alertInfo);
   }
 
   gotError(error) {
-    store.dispatch({
+    this.props.dispatch({
       type: 'ERROR_MSG',
       msg: error.reason
     });
   }
 
+  newMessage(msg) { this.setState({posts: this.state.posts.concat(msg.post)}); }
+
   toggleDetail() { this.setState({detail: !this.state.detail}); }
 
+  sendMessage() {
+    let input = $('#chat-field')[0];
+    input = $(input).val();
+    this.channel.push('post', {'body': input})
+      .receive("error", this.gotError.bind(this));
+  }
+
   render() {
+    let messages = _.map(this.state.posts, (post) => {
+      return <Message key={post.id}
+                      message={post.body}
+                      user={post.user}
+                      mine={post.user.id == this.props.user.user_id}/>;
+    });
+
     return (
-      <div>
-        <div className="bg-info text-white rounded m-3 p-3">
-          <div className="row">
-            <h2 className="col">Local Weather</h2>
-          </div>
-          {this.renderWeather()}
+      <div id="chat" className="container">
+        <div id="chat-messages">
+          {messages}
         </div>
-        <div className="m-3">
-          <div className="row">
-            <div className="col-7">
-              <HomeMap />
-            </div>
-            <div className="col-5">
-              <div className="border border-info rounded ml-3 p-3">
-                <h2 className="d-inline-block">Alerts by Locations</h2>
-                <Button color="info" className="float-right"
-                        onClick={this.toggleEdit.bind(this)}>
-                  {this.state.editing ? "Done" : "Edit"}
-                </Button>
-                {this.renderForm()}
-                {this.renderLocations()}
-              </div>
-            </div>
-          </div>
+        <div id="chat-footer" className="row">
+          <Input name="chat-field"
+                 type="text"
+                 id="chat-field"
+                 placeholder="Send a message..."
+                 className="mx-3 col" />
+          <Button onClick={this.sendMessage.bind(this)}
+                  color="info" className="mr-3">
+            Send
+          </Button>
         </div>
       </div>
     );
@@ -77,20 +85,20 @@ class Home extends React.Component {
 }
 
 function Message(params) {
-  let classes = "border";
+  let classes = "border row";
   if (params.mine) {
-    classes += "border-info my-message";
+    classes += "border-info text-info my-message";
   } else {
-    classes += "border-secondary other-message";
+    classes += "border-secondary text-secondary other-message";
   }
 
   return (
     <div className={classes}>
-      <h6>params.</h6>
+      <h6>{params.user.name}</h6>
       <br/>
       <small>{params.message}</small>
     </div>
   );
 }
 
-export default connect((state) => state)(Home);
+export default connect((state) => state)(Chat);
