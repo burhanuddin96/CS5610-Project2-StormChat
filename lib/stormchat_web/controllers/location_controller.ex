@@ -22,7 +22,7 @@ defmodule StormchatWeb.LocationController do
   def create(conn, %{"location" => location_params, "token" => token}) do
     case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
-        location_params = Map.put(location_params, :user_id, user_id)
+        location_params = Map.put(location_params, "user_id", user_id)
 
         with {:ok, %Location{} = location} <- Locations.create_location(location_params) do
           conn

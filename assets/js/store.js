@@ -130,6 +130,10 @@ function savedLocations(state = [], action) {
   switch (action.type) {
     case 'SAVED_LOCATIONS':
       return action.data;
+    case 'ADD_LOCATION':
+      return state.concat(action.data);
+    case 'DELETE_LOCATION':
+      return state.filter((loc) => loc.id != action.id);
     default:
       return state;
   }

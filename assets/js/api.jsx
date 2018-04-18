@@ -155,14 +155,14 @@ class TheServer {
           success: (resp) => {
             store.dispatch({
               type: 'ADD_LOCATION',
-              data: resp
+              data: resp.data
             });
             store.dispatch({
               type: 'SUCCESS_MSG',
               msg: `Successfully added ${name} to your saved locations`
             });
           },
-          error: (resp) {
+          error: (resp) => {
             store.dispatch({
               type: 'ERROR_MSG',
               msg: 'Could not add location. Try entering an address, postal code, or city name.'
@@ -174,6 +174,29 @@ class TheServer {
           type: 'ERROR_MSG',
           msg: 'Could not find location. Try entering an address, postal code, or city name.'
         });
+      }
+    });
+  }
+
+  deleteLocation(loc_id) {
+    $.ajax(`/api/v1/locations/${loc_id}?token=${this.token}`, {
+      method: 'delete',
+      success: (resp) => {
+        store.dispatch({
+          type: 'DELETE_LOCATION',
+          id: loc_id
+        });
+        store.dispatch({
+          type: 'SUCCESS_MSG',
+          msg: 'Location deleted'
+        });
+      },
+      error: (resp) => {
+        store.dispatch({
+          type: 'ERROR_MSG',
+          msg: 'Could not delete location'
+        });
+        console.log(resp);
       }
     });
   }

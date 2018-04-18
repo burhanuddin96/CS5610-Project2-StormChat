@@ -119,9 +119,10 @@ defmodule Stormchat.Locations do
     # make sure location creation was successful
     case msg do
       :ok ->
-        lat = attrs[:lat]
-        long = attrs[:long]
-        user_id = attrs[:user_id]
+        lat = attrs["lat"]
+        long = attrs["long"]
+        user_id = attrs["user_id"]
+        IO.inspect(attrs)
 
         # get id of newly created location
         location_id = get_location_id(lat, long, user_id)

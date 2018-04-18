@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'reactstrap';
+import { Button, Card, CardHeader, Collapse, CardBody } from 'reactstrap';
 import Spinner from './spinner';
 import HomeMap from './homemap';
 import SearchLocation from './searchlocation';
@@ -64,9 +64,9 @@ class Home extends React.Component {
   }
 
   renderLocations() {
-    let currentLoc = null;
-    let savedLocs = null;
-    let spinner = null;
+    let currentLoc = '';
+    let savedLocs = '';
+    let spinner = '';
     if (this.props.savedLocations && this.props.savedLocations.length > 0) {
       savedLocs = _.map(this.props.savedLocations, (loc) => {
         return <Location key={loc.id} loc={loc} editing={this.state.editing} />;
@@ -74,9 +74,9 @@ class Home extends React.Component {
     }
     if (this.props.currentLocation) {
       let data = {
-        name: "Current Location",
-        id: null,
-        coords: this.props.currentLocation
+        description: "Current Location",
+        long: this.props.currentLocation.lng,
+        lat: this.props.currentLocation.lat
       };
       currentLoc = <Location loc={data} editing={false} />;
     }
@@ -151,28 +151,26 @@ class Location extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {expanded: false, editing: this.props.editing}
+    this.state = {expanded: false}
   }
 
   toggle() { this.setState({expanded: !this.state.expanded}); }
 
   deleteLocation() {
-    //TODO
-    alert("delete location");
+    api.deleteLocation(this.props.loc.id);
   }
 
   render() {
     let alerts = ''; //TODO load alerts for location
     if (!alerts) {
-      return <Spinner />;
+      alerts = <Spinner />;
     } else {
       alerts = [];
     }
 
-
     let button = '';
 
-    if (this.state.editing) {
+    if (this.props.editing) {
       button = (
         <Button color="warning"
                 className="float-right"
@@ -191,12 +189,12 @@ class Location extends React.Component {
     }
 
     return (
-      <Card>
+      <Card className="mt-3">
         <CardHeader>
-          <h4>Location Name</h4>
+          <h4 className="d-inline">{this.props.loc.description}</h4>
           {button}
         </CardHeader>
-        <Collapse isOpen={this.state.expanded && !this.state.editing}>
+        <Collapse isOpen={this.state.expanded && !this.props.editing}>
           <CardBody>
             {alerts}
           </CardBody>
