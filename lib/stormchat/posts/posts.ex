@@ -21,6 +21,7 @@ defmodule Stormchat.Posts do
     Repo.all(Post)
   end
 
+  # returns the max number of posts per "page load"
   def post_limit do
     10
   end
@@ -52,14 +53,6 @@ defmodule Stormchat.Posts do
         order_by: [desc: p.inserted_at],
         limit: ^pl,
         select: p
-
-    Repo.all(query)
-  end
-
-  def list_posts_by_alert_id(alert_id) do
-    query =
-      from p in Post,
-      where: p.alert_id == ^alert_id
 
     Repo.all(query)
   end

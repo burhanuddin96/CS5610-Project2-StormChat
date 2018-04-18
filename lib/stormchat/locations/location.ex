@@ -2,6 +2,8 @@ defmodule Stormchat.Locations.Location do
   use Ecto.Schema
   import Ecto.Changeset
 
+  # to store users' saved locations that they'd like notifications for
+
   schema "locations" do
     field :description, :string
     field :lat, :float
