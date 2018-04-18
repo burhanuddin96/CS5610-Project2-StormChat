@@ -1,8 +1,8 @@
 defmodule StormchatWeb.CountyController do
   use StormchatWeb, :controller
 
-  alias Stormchat.Alerts
-  alias Stormchat.Alerts.County
+  # alias Stormchat.Alerts
+  # alias Stormchat.Alerts.County
 
   action_fallback StormchatWeb.FallbackController
 

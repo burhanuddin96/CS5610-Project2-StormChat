@@ -23,10 +23,10 @@ defmodule StormchatWeb.AlertController do
             "active_older_by_location" -> Alerts.get_older_active_by_location(user_id, params["location_id"], params["alert_id"])
             "historical_by_location" -> Alerts.get_historical_by_location(user_id, params["location_id"])
             "historical_older_by_location" -> Alerts.get_older_historical_by_location(user_id, params["location_id"], params["alert_id"])
-            "active_by_latlong" -> Alerts.get_active_by_latlong(user_id, params["lat"], params["long"])
-            "active_older_by_latlong" -> Alerts.get_older_active_by_latlong(user_id, params["lat"], params["long"], params["alert_id"])
-            "historical_by_latlong" -> Alerts.get_historical_by_latlong(user_id, params["lat"], params["long"])
-            "historical_older_by_latlong" -> Alerts.get_older_historical_by_latlong(user_id, params["lat"], params["long"], params["alert_id"])
+            "active_by_latlong" -> Alerts.get_active_by_latlong(params["lat"], params["long"])
+            "active_older_by_latlong" -> Alerts.get_older_active_by_latlong(params["lat"], params["long"], params["alert_id"])
+            "historical_by_latlong" -> Alerts.get_historical_by_latlong(params["lat"], params["long"])
+            "historical_older_by_latlong" -> Alerts.get_older_historical_by_latlong(params["lat"], params["long"], params["alert_id"])
             _else -> Alerts.list_alerts_by_user_id(user_id)
           end
 

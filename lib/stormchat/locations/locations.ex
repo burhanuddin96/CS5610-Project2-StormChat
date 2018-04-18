@@ -9,7 +9,6 @@ defmodule Stormchat.Locations do
   alias Stormchat.Locations.Location
   alias Stormchat.Locations.LocationCounty
   alias Stormchat.Alerts
-  alias Stormchat.Alerts.Alert
   alias Stormchat.Locations.CountyPolygons
 
   # returns a list of polygons affected by the given alert
@@ -131,10 +130,7 @@ defmodule Stormchat.Locations do
         # and create a location_county for each fips code
         get_fips_by_latlong(lat, long)
         |> Enum.each(fn(fc) ->
-          # IO.write("fips code: ")
-          # IO.puts(fc)
-          new_lc_resp = create_location_county(%{location_id: location_id, fips_code: fc})
-          # IO.inspect(new_lc_resp)
+          create_location_county(%{location_id: location_id, fips_code: fc})
           end)
 
         {msg, changeset}
