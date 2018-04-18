@@ -23,9 +23,46 @@ defmodule Stormchat.Users.User do
     |> cast(attrs, [:name, :email, :phone, :urgency, :severity, :certainty, :password, :password_confirmation])
     |> validate_confirmation(:password)
     |> validate_password(:password)
+    |> validate_phone(:phone)
     |> put_pass_hash()
     |> validate_required([:name, :email, :phone, :urgency, :severity, :certainty, :password_hash])
     |> unique_constraint(:email)
+  end
+
+  # validate the phone number using Changeset's validate_change method
+  def validate_phone(changeset, field, options \\ []) do
+    validate_change(changeset, field, fn _, phone ->
+      case valid_phone?(phone) do
+        {:ok, _} -> []
+        {:error, msg} -> [{field, options[:message] || msg}]
+      end
+    end)
+  end
+
+  # phone validation helper method
+  def valid_phone?(phone) do
+    if ten_digit_number?(phone) do
+      {:ok, phone}
+    else
+      {:error, "The phone number must be a 10-digit number with no other characters"}
+    end
+  end
+
+  def ten_digit_number?(phone) do
+    list_of_characters = String.graphemes(phone)
+
+    ten_digits = case Enum.count(list_of_characters) do
+      10 -> true
+      _ -> false
+    end
+
+    digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+
+    case ten_digits do
+      false -> false
+      true ->
+        Enum.reduce(list_of_characters, true, fn(cc, acc) -> (Enum.member?(digits, cc)) && acc end)
+    end
   end
 
   # method to validate password from Comonin docs
