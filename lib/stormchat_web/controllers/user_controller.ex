@@ -47,7 +47,7 @@ defmodule StormchatWeb.UserController do
       {:ok, user_id} ->
         user = Users.get_user(id)
 
-        if user == nil || id != user_id do
+        if user == nil || user.id != user_id do
           IO.inspect({:bad_match, id, user_id})
           raise "hax!"
         end
@@ -67,7 +67,7 @@ defmodule StormchatWeb.UserController do
       {:ok, user_id} ->
         user = Users.get_user!(id)
 
-        if user == nil || id != user_id do
+        if user == nil || user.id != user_id do
           IO.inspect({:bad_match, id, user_id})
           raise "hax!"
         end

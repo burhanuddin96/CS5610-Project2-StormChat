@@ -23,12 +23,11 @@ class TheServer {
       success: (resp) => {
         store.dispatch({
           type: 'SUCCESS_MSG',
-          success: 'Signed up successfully'
+          msg: 'Signed up successfully'
         });
         onSuccess();
       },
       error: (resp) => {
-        console.log(resp.responseJSON.errors);
         if (resp.status == 422) {
           onError(resp.responseJSON.errors);
         }
@@ -47,25 +46,70 @@ class TheServer {
           type: 'SET_USER',
           user: resp
         });
+        store.dispatch({
+          type: 'SUCCESS_MSG',
+          msg: `Welcome back, ${resp.name}!`
+        });
         onSuccess();
       },
       error: (resp) => {
         store.dispatch({
           type: 'ERROR_MSG',
-          msg: "Login failed",
+          msg: 'Login failed'
         });
       }
     });
   }
 
-  getSavedLocations() {
-    if (!this.token) {
-      store.dispatch({
-        type: 'ERROR_MSG',
-        msg: 'No token!'
-      });
-      return;
+  submitSettings(userId, settings, onSuccess, onError) {
+    let data = Object.assign({}, settings);
+    if (!(data['password'] || data['password_confirmation'])) {
+      if (data['password'])delete data['password'];
+      delete data['password_confirmation'];
     }
+
+    $.ajax(`/api/v1/users/${userId}`, {
+      method: "put",
+      dataType: "json",
+      contentType: "application/json; charset=UTF-8",
+      data: JSON.stringify({
+        token: this.token,
+        user_params: data
+      }),
+      success: (resp) => {
+        store.dispatch({
+          type: 'SUCCESS_MSG',
+          msg: 'Settings updated'
+        });
+        store.dispatch({
+          type: 'UPDATE_USER',
+          user: resp.data
+        });
+        onSuccess();
+      },
+      error: (resp) => {
+        if (resp.status == 422) {
+          onError(resp.responseJSON.errors);
+        }
+      }
+    });
+  }
+
+  deleteAccount(userId, onSuccess) {
+    $.ajax(`/api/v1/users/${userId}?token=${this.token}`, {
+      method: "delete",
+      success: (resp) => {
+        store.dispatch({type: 'DELETE_USER'});
+        store.dispatch({
+          type: 'SUCCESS_MSG',
+          msg: 'Account deleted successfully'
+        });
+        onSuccess();
+      }
+    });
+  }
+
+  getSavedLocations() {
     $.ajax(`/api/v1/locations?token=${this.token}`, {
       method: "get",
       success: (resp) => {
@@ -78,10 +122,11 @@ class TheServer {
   }
 
   getCurrentWeather(lat, lon) {
-    let path = `api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${weatherAPI}`;
+    let path = "https://api.openweathermap.org/data/2.5/weather?" + `lat=${lat}&lon=${lon}&units=imperial&appid=${weatherAPI}`;
     $.ajax(path, {
       method: "get",
       success: (resp) => {
+        console.log(resp);
         store.dispatch({
           type: 'WEATHER',
           data: resp

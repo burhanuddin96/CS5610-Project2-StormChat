@@ -40,7 +40,7 @@ class Home extends React.Component {
             </div>
             <div className="col-5">
               <div className="border border-info rounded ml-3 p-3">
-                <h2 className="d-inline-block">Alerts by Location</h2>
+                <h2 className="d-inline-block">Alerts by Locations</h2>
                 <Button color="info" className="float-right"
                         onClick={this.toggleEdit.bind(this)}>
                   {this.state.editing ? "Done" : "Edit"}

@@ -93,7 +93,7 @@ class Splash extends React.Component {
         <h1>StormChat</h1>
         <h4>Put some buzzword-y blurb here with a basic overview of the app</h4>
         <Button onClick={this.showLogin.bind(this)}
-                color="primary">
+                color="info">
           Login
         </Button>
         <span> - OR - </span>
@@ -128,7 +128,7 @@ class Splash extends React.Component {
           <FormGroup row>
             <Col sm={2}>
               <Button onClick={this.submitLogin.bind(this)}
-                      color="primary">Login</Button>
+                      color="info">Login</Button>
             </Col>
             <Col sm={2}>
               <Button onClick={this.showAbout.bind(this)}
@@ -193,7 +193,7 @@ class Splash extends React.Component {
           <FormGroup row>
             <Col sm={2}>
               <Button onClick={this.submitSignUp.bind(this)}
-                      color="primary">Sign Up</Button>
+                      color="info">Sign Up</Button>
             </Col>
             <Col sm={2}>
               <Button onClick={this.showAbout.bind(this)}

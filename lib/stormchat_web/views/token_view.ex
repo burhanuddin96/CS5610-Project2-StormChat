@@ -6,6 +6,11 @@ defmodule StormchatWeb.TokenView do
     %{
       user_id: user.id,
       name: user.name,
+      email: user.email,
+      phone: user.phone,
+      urgency: user.urgency,
+      severity: user.severity,
+      certainty: user.certainty,
       token: token
     }
   end

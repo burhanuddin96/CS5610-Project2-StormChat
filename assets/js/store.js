@@ -33,6 +33,8 @@ function user(state = null, action) {
       return action.user;
     case 'DELETE_USER':
       return null;
+    case 'UPDATE_USER':
+      return Object.assign({}, state, action.user);
     default:
       return state;
   }
@@ -73,6 +75,28 @@ function login(state = emptyLogin, action) {
   }
 }
 
+let emptySettings = {
+  name: "",
+  email: "",
+  phone: "",
+  password: "",
+  password_confirmation: "",
+  urgency: "",
+  severity: "",
+  certainty: ""
+}
+
+function settings(state = emptySettings, action) {
+  switch (action.type) {
+    case 'UPDATE_SETTINGS':
+      return Object.assign({}, state, action.data);
+    case 'RESET_FORMS':
+      return emptySettings;
+    default:
+      return state;
+  }
+}
+
 function weather(state = null, action) {
   switch (action.type) {
     case 'WEATHER':
@@ -93,7 +117,16 @@ function chat(state = "", action) {
   }
 }
 
-function locations(state = [], action) {
+function currentLocation(state = {}, action) {
+  switch (action.type) {
+    case 'UPDATE_CURRENT_LOCATION':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
+function savedLocations(state = [], action) {
   switch (action.type) {
     case 'SAVED_LOCATIONS':
       return action.data;
@@ -105,7 +138,7 @@ function locations(state = [], action) {
 function success(state = "", action) {
   switch (action.type) {
     case 'SUCCESS_MSG':
-      return action.success;
+      return action.msg;
     case 'ERROR_MSG':
       return "";
     case 'RESET_SUCCESS':
@@ -118,7 +151,7 @@ function success(state = "", action) {
 function error(state = "", action) {
   switch (action.type) {
     case 'ERROR_MSG':
-      return action.error;
+      return action.msg;
     case 'SUCCESS_MSG':
       return "";
     case 'RESET_ERROR':
@@ -130,9 +163,10 @@ function error(state = "", action) {
 
 function root_reducer(state0, action) {
   console.log("state0", state0);
-  let reducer = combineReducers(
-    {user, login, signUp, weather, chat, locations, success, error}
-  );
+  let reducer = combineReducers({
+    user, login, signUp, settings, weather, chat,
+    currentLocation, savedLocations, success, error
+  });
   let state1 = reducer(state0, action);
   console.log("state1", state1)
     return deepFreeze(state1);

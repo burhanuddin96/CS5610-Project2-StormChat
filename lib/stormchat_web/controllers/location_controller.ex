@@ -56,7 +56,7 @@ defmodule StormchatWeb.LocationController do
         end
       _else ->
         conn
-        |> redirect(to: page_path(conn, :index))
+        #|> redirect(to: page_path(conn, :index))
     end
   end
 
