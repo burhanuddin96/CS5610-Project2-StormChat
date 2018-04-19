@@ -86,7 +86,7 @@ class Splash extends React.Component {
             {this.state.state == 2 ? this.renderLogin() : ''}
             {this.state.state == 3 ? this.renderSignUp() : ''}
           </Collapse>
-          <small className="text-muted float-right">Image From: <a className="text-muted" href="https://static.independent.co.uk/s3fs-public/styles/story_large/public/thumbnails/image/2016/11/19/11/15019639965-a0d68b36cd-o.jpg"><u>independent.co.uk</u></a></small>
+          <small className="float-right"><a className="text-muted" href="http://www.thunderbolttours.com/wordpress/wp-content/uploads/extreme-storms-lightning1.jpg"><u>Image Source</u></a></small>
         </Jumbotron>
       </div>
     );
