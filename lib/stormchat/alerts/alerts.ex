@@ -218,26 +218,26 @@ defmodule Stormchat.Alerts do
     if user != nil do
       urgency =
         case user.urgency do
-          "Immediate" -> Enum.member?(alert.urgency, immediate)
-          "Expected" -> Enum.member?(alert.urgency, expected)
-          "Future" -> Enum.member?(alert.urgency, future)
-          _else -> Enum.member?(alert.urgency, past)
+          "Immediate" -> Enum.member?(immediate, alert.urgency)
+          "Expected" -> Enum.member?(expected, alert.urgency)
+          "Future" -> Enum.member?(future, alert.urgency)
+          _else -> Enum.member?(past, alert.urgency)
         end
 
       severity =
         case user.severity do
-          "Extreme" -> Enum.member?(alert.severity, extreme)
-          "Severe" -> Enum.member?(alert.severity, severe)
-          "Moderate" -> Enum.member?(alert.severity, moderate)
-          _else -> Enum.member?(alert.severity, minor)
+          "Extreme" -> Enum.member?(extreme, alert.severity)
+          "Severe" -> Enum.member?(severe, alert.severity)
+          "Moderate" -> Enum.member?(moderate, alert.severity)
+          _else -> Enum.member?(minor, alert.severity)
         end
 
       certainty =
         case user.certainty do
-          "Observed" -> Enum.member?(alert.certainty, observed)
-          "Likely" -> Enum.member?(alert.certainty, likely)
-          "Possible" -> Enum.member?(alert.certainty, possible)
-          _else -> Enum.member?(alert.certainty, unlikely)
+          "Observed" -> Enum.member?(observed, alert.certainty)
+          "Likely" -> Enum.member?(likely, alert.certainty)
+          "Possible" -> Enum.member?(possible, alert.certainty)
+          _else -> Enum.member?(unlikely, alert.certainty)
         end
 
       urgency && severity && certainty
