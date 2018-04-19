@@ -7,36 +7,12 @@ defmodule StormchatWeb.UserController do
 
   action_fallback StormchatWeb.FallbackController
 
-  # def index(conn, _params) do
-  #   users = Users.list_users()
-  #   render(conn, "index.json", users: users)
-  # end
-
   # creates a new user and a default current_location for this new user
   def create(conn, %{"user_params" => user_params}) do
     with {:ok, %User{} = user} <- Users.create_user(user_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", user_path(conn, :show, user))
       |> render("show.json", user: user)
-    end
-  end
-
-  # returns the appropriate user view based on who's requesting
-  def show(conn, %{"id" => id, "token" => token}) do
-    case Phoenix.Token.verify(conn, "auth token", token, max_age: 86400) do
-      {:ok, user_id} ->
-        user = Users.get_user!(id)
-
-        if user_id == id do
-          render(conn, "show.json", user: user)
-        else
-          render(conn, "show_restricted.json", user: user)
-        end
-      _else ->
-        conn
-        |> put_status(401)
-        |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
 

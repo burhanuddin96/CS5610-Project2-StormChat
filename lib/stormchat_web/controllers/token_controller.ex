@@ -2,13 +2,11 @@ defmodule StormchatWeb.TokenController do
   use StormchatWeb, :controller
 
   alias Stormchat.Users
-  alias Stormchat.Users.User
 
   action_fallback StormchatWeb.FallbackController
 
   # creates a token for future authentication
   def create(conn, %{"email" => email, "password" => password}) do
-    IO.puts("HERE")
     case Users.get_and_auth_user(email, password) do
       {:ok, user} ->
         token = Phoenix.Token.sign(conn, "auth token", user.id)

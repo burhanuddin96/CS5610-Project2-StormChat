@@ -1,9 +1,0 @@
-<section class="topic-index">
-  <h2 class="section-header">Recent Topics</h2>
-
-  <div class="topics-list">
-    <%= for topic <- @recent do %>
-      <%= component "topic_card.html", topic: topic, conn: @conn %>
-    <% end %>
-  </div>
-</section>

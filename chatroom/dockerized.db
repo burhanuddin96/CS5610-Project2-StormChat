@@ -1,1 +1,0 @@
-docker run --name chat -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres --volumes-from faster_db_volume -d -p 5432:5432 postgres

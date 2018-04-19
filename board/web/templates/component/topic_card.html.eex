@@ -1,8 +1,0 @@
-<div class="topic-card">
-  <p class="topic-card--title">
-    <%= link(@topic.name, to: topic_path(@conn, :show, @topic)) %>
-  </p>
-  <p class"topic-card--meta">
-    Posted by <%= @topic.author.handle %> at <%= @topic.inserted_at %>
-  </p>
-</div>
