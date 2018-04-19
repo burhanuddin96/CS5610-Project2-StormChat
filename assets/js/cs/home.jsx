@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Button, Card, CardHeader, Collapse, CardBody } from 'reactstrap';
+import { Button, Card, CardHeader, Collapse, CardBody, Table } from 'reactstrap';
 import Spinner from './spinner';
 import HomeMap from './homemap';
 import SearchLocation from './searchlocation';
@@ -97,7 +97,7 @@ class Home extends React.Component {
     }
     let weather = this.props.weather;
     return (
-      <table className="w-100 text-center">
+      <Table className="w-100 text-center" responsive>
         <tbody>
           <tr>
             <td className="align-middle">
@@ -140,7 +140,7 @@ class Home extends React.Component {
             </td>
           </tr>
         </tbody>
-      </table>
+      </Table>
     );
   }
 }
@@ -157,7 +157,7 @@ class Location extends React.Component {
       api.getAlerts(
         {type: 'active_by_location',
          location_id: this.props.loc.id},
-        ((alerts) => this.setState({alerts: alerts})).bind(this)
+        ((alerts) => this.setState({alerts: alerts.reverse()})).bind(this)
       );
     }
     this.setState({expanded: !this.state.expanded});

@@ -35,6 +35,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -55,6 +56,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -75,6 +77,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end

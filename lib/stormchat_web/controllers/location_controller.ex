@@ -14,6 +14,7 @@ defmodule StormchatWeb.LocationController do
         render(conn, "index.json", locations: locations)
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -32,6 +33,7 @@ defmodule StormchatWeb.LocationController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -51,6 +53,7 @@ defmodule StormchatWeb.LocationController do
         render(conn, "show.json", location: location)
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -71,6 +74,7 @@ defmodule StormchatWeb.LocationController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -91,6 +95,7 @@ defmodule StormchatWeb.LocationController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end

@@ -14,4 +14,8 @@ defmodule StormchatWeb.TokenView do
       token: token
     }
   end
+
+  def render("error.json", %{}) do
+    %{error: "Login failed"}
+  end
 end

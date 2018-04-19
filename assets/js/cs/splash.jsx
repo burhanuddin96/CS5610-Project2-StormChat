@@ -1,7 +1,8 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Jumbotron, Form, FormFeedback, FormGroup, Label, Input, Button, Col } from 'reactstrap';
+import { Jumbotron, Form, FormFeedback, FormGroup,
+         Label, Input, Button, Col, Collapse } from 'reactstrap';
 import api from '../api';
 
 class Splash extends React.Component {
@@ -73,21 +74,37 @@ class Splash extends React.Component {
     switch(this.state.state) {
       case 2: body = this.renderLogin(); break;
       case 3: body = this.renderSignUp(); break;
-      default: body = this.renderAbout();
+      default: body = this.renderButtons();
     }
 
     return (
       <div className="container-fluid">
-        <Jumbotron>{ body }</Jumbotron>
+        <Jumbotron>
+          {this.renderAbout()}
+          {this.state.state == 1 ? this.renderButtons() : ''}
+          <Collapse isOpen={this.state.state != 1}>
+            {this.state.state == 2 ? this.renderLogin() : ''}
+            {this.state.state == 3 ? this.renderSignUp() : ''}
+          </Collapse>
+          <small className="text-muted float-right">Image From: <a className="text-muted" href="https://static.independent.co.uk/s3fs-public/styles/story_large/public/thumbnails/image/2016/11/19/11/15019639965-a0d68b36cd-o.jpg"><u>independent.co.uk</u></a></small>
+        </Jumbotron>
       </div>
     );
   }
 
   renderAbout() {
     return (
+      <div id="splash-about" className="fade-in">
+        <h1 className="display-4">StormChat</h1>
+        <p className="lead">Stay in the know about severe weather in the places you care about. With StormChat, you can be notified of new alerts and chat directly with other people in affected areas. Preparedness is better when the whole community is involved.</p>
+        <br/>
+      </div>
+    );
+  }
+
+  renderButtons() {
+    return (
       <div className="fade-in">
-        <h1>StormChat</h1>
-        <h4>Put some buzzword-y blurb here with a basic overview of the app</h4>
         <Button onClick={this.showLogin.bind(this)}
                 color="info">
           Login
@@ -104,7 +121,7 @@ class Splash extends React.Component {
   renderLogin() {
     let update = this.updateLogin.bind(this);
     return (
-      <div className="fade-in">
+      <div id="splash-login" className="fade-in">
         <h2>Log In</h2>
         <Form>
           <FormGroup row>
@@ -122,11 +139,9 @@ class Splash extends React.Component {
             </Col>
           </FormGroup>
           <FormGroup row>
-            <Col sm={2}>
+            <Col>
               <Button onClick={this.submitLogin.bind(this)}
-                      color="info">Login</Button>
-            </Col>
-            <Col sm={2}>
+                      color="info" className="mr-3">Login</Button>
               <Button onClick={this.showAbout.bind(this)}
                       color="secondary">Back</Button>
             </Col>
@@ -137,13 +152,9 @@ class Splash extends React.Component {
   }
 
   renderSignUp() {
-    console.log('RENDER');
-    console.log(this.state.errors);
-    console.log(this.feedback('name'));
-
     let update = this.updateSignUp.bind(this);
     return (
-      <div className="fade-in">
+      <div id="splash-signup" className="fade-in">
         <h2>Sign Up</h2>
         <Form>
           <FormGroup row>
@@ -188,11 +199,9 @@ class Splash extends React.Component {
             </Col>
           </FormGroup>
           <FormGroup row>
-            <Col sm={2}>
+            <Col>
               <Button onClick={this.submitSignUp.bind(this)}
-                      color="info">Sign Up</Button>
-            </Col>
-            <Col sm={2}>
+                      color="info" className="mr-3">Sign Up</Button>
               <Button onClick={this.showAbout.bind(this)}
                       color="secondary">Back</Button>
             </Col>

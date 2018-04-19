@@ -49,9 +49,10 @@ class Chat extends React.Component {
       console.log('handling');
       this.channel.push('older', {'oldest_id': this.state.posts[0].id})
         .receive("ok", ((msg) => {
-          console.log("OLD_MSG", msg);
           let posts = msg.posts.reverse();
           this.setState({posts: posts.concat(this.state.posts)});
+          let spinner = $('.spinner')[0]
+          this.scrollTo(spinner.offsetTop);
         }));
     }
     $(window).one('scroll', this.handleScroll.bind(this));
@@ -86,15 +87,13 @@ class Chat extends React.Component {
 
   updateMessage(ev) { this.setState({message: $(ev.target).val()}); }
 
-  scrollToTop() {
-    $('html, body').stop().animate({
-        scrollTop: 0
-    }, 500);
-  }
+  scrollToTop() { this.scrollTo(0); }
 
-  scrollToBottom() {
+  scrollToBottom() { this.scrollTo($(document).height()); }
+
+  scrollTo(n) {
     $('html, body').stop().animate({
-        scrollTop: $(document).height()
+      scrollTop: n
     }, 500);
   }
 
@@ -109,22 +108,6 @@ class Chat extends React.Component {
 
     return (
       <div id="chat">
-        <div id="chat-buttons">
-          <Button color="warning"
-                  onClick={this.toggleDetail.bind(this)}>
-            <i className="fa fa-info"></i>
-          </Button>
-          <Button color="warning" outline
-                  className="bg-white"
-                  onClick={this.scrollToTop.bind(this)}>
-            <i className="fa fa-arrow-up"></i>
-          </Button>
-          <Button color="warning" outline
-                  className="bg-white"
-                  onClick={this.scrollToBottom.bind(this)}>
-            <i className="fa fa-arrow-down"></i>
-          </Button>
-        </div>
         <div id="chat-messages" className="container">
           <div className="row mb-3"><Spinner /></div>
           {messages}
@@ -146,6 +129,22 @@ class Chat extends React.Component {
               </Button>
             </div>
           </div>
+        </div>
+        <div id="chat-buttons">
+          <Button color="warning"
+                  onClick={this.toggleDetail.bind(this)}>
+            <i className="fa fa-info"></i>
+          </Button>
+          <Button color="warning" outline
+                  className="bg-white"
+                  onClick={this.scrollToTop.bind(this)}>
+            <i className="fa fa-arrow-up"></i>
+          </Button>
+          <Button color="warning" outline
+                  className="bg-white"
+                  onClick={this.scrollToBottom.bind(this)}>
+            <i className="fa fa-arrow-down"></i>
+          </Button>
         </div>
         {this.renderDetails()}
       </div>

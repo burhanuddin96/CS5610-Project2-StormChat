@@ -89,7 +89,6 @@ class TheServer {
         user_params: data
       }),
       success: (resp) => {
-        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'SUCCESS_MSG',
           msg: 'Settings updated'
@@ -101,6 +100,7 @@ class TheServer {
         onSuccess();
       },
       error: (resp) => {
+        if (badToken(resp)) { return; }
         if (resp.status == 422) {
           onError(resp.responseJSON.errors);
         }
@@ -112,12 +112,13 @@ class TheServer {
     $.ajax(`/api/v1/users/${userId}?token=${this.token}`, {
       method: "delete",
       success: (resp) => {
-        if (badToken(resp)) { return; }
         store.dispatch({type: 'DELETE_USER'});
         store.dispatch({
           type: 'SUCCESS_MSG',
           msg: 'Account deleted successfully'
         });
+      }, error: (resp) => {
+        if (badToken(resp)) { return; }
       }
     });
   }
@@ -126,11 +127,13 @@ class TheServer {
     $.ajax(`/api/v1/locations?token=${this.token}`, {
       method: "get",
       success: (resp) => {
-        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'SAVED_LOCATIONS',
           data: resp.data
         });
+      },
+      error: (resp) => {
+        if (badToken(resp)) { return; }
       }
     });
   }
@@ -166,7 +169,6 @@ class TheServer {
             }
           }),
           success: (resp) => {
-            if (badToken(resp)) { return; }
             store.dispatch({
               type: 'ADD_LOCATION',
               data: resp.data
@@ -177,6 +179,7 @@ class TheServer {
             });
           },
           error: (resp) => {
+            if (badToken(resp)) { return; }
             store.dispatch({
               type: 'ERROR_MSG',
               msg: 'Could not add location. Try entering an address, postal code, or city name.'
@@ -196,7 +199,6 @@ class TheServer {
     $.ajax(`/api/v1/locations/${loc_id}?token=${this.token}`, {
       method: 'delete',
       success: (resp) => {
-        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'DELETE_LOCATION',
           id: loc_id
@@ -207,6 +209,7 @@ class TheServer {
         });
       },
       error: (resp) => {
+        if (badToken(resp)) { return; }
         store.dispatch({
           type: 'ERROR_MSG',
           msg: 'Could not delete location'
@@ -223,9 +226,11 @@ class TheServer {
     $.ajax(path, {
       method: 'get',
       success: (resp) => {
-        if (badToken(resp)) { return; }
         console.log(resp);
         onSuccess(resp.data);
+      },
+      error: (resp) => {
+        if (badToken(resp)) { return; }
       }
     });
   }
