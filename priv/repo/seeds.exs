@@ -12,9 +12,6 @@
 defmodule Seeds do
   alias Stormchat.Repo
   alias Stormchat.Users.User
-  alias Stormchat.Locations
-  alias Stormchat.Locations.Location
-  alias Stormchat.Alerts
   alias Stormchat.Posts.Post
 
   def run do
@@ -24,10 +21,10 @@ defmodule Seeds do
     ph4 = Comeonin.Argon2.hashpwsalt("password4");
 
     Repo.delete_all(User)
-    a = Repo.insert!(%User{ name: "alice", email: "alice@example.com", phone: "8572721850", password_hash: ph1 })
-    b = Repo.insert!(%User{ name: "bob", email: "bob@example.com", phone: "5555550002", password_hash: ph2 })
-    c = Repo.insert!(%User{ name: "carol", email: "carol@example.com", phone: "5555550003", password_hash: ph3 })
-    d = Repo.insert!(%User{ name: "dave", email: "dave@example.com", phone: "5555550004", password_hash: ph4 })
+    Repo.insert!(%User{ name: "alice", email: "alice@example.com", phone: "8572721850", password_hash: ph1 })
+    Repo.insert!(%User{ name: "bob", email: "bob@example.com", phone: "5555550002", password_hash: ph2 })
+    Repo.insert!(%User{ name: "carol", email: "carol@example.com", phone: "5555550003", password_hash: ph3 })
+    Repo.insert!(%User{ name: "dave", email: "dave@example.com", phone: "5555550004", password_hash: ph4 })
 
     Repo.delete_all(Post)
     Repo.insert!(%Post{ body: "test post 1", alert_id: 37, user_id: 1 })

@@ -34,8 +34,6 @@ defmodule Stormchat.Locations do
       :ok ->
         {m, r} = Poison.decode(resp.body)
 
-        # IO.inspect(r)
-
         case m do
           :error ->
             IO.puts("error decoding datascience toolkit fips jason response")
