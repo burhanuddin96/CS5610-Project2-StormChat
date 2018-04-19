@@ -139,7 +139,7 @@ defmodule Stormchat.Users do
 
     case msg do
       :ok ->
-        if attrs["phone"] != nil do
+        if attrs["phone"] != user.phone do
           notify_admin(resp)
         end
         {msg, resp}
