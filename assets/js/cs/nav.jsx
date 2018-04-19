@@ -76,7 +76,7 @@ class UserNav extends React.Component {
     let update = this.update.bind(this);
     return (
       <NavItem>
-        <span onClick={show} color="link" className="nav-link">
+        <span onClick={show} color="link" className="nav-link pointer">
           Settings
         </span>
         <Modal isOpen={this.state.settings} toggle={hide}>
@@ -183,7 +183,7 @@ class UserNav extends React.Component {
             {this.renderSettings()}
             <NavItem>
               <span onClick={this.logOut.bind(this)}
-                    color="link" className="nav-link">
+                    color="link" className="nav-link pointer">
                 Log Out
               </span>
             </NavItem>
