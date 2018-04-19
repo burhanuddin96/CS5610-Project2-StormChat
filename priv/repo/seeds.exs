@@ -29,11 +29,6 @@ defmodule Seeds do
     c = Repo.insert!(%User{ name: "carol", email: "carol@example.com", phone: "5555550003", password_hash: ph3 })
     d = Repo.insert!(%User{ name: "dave", email: "dave@example.com", phone: "5555550004", password_hash: ph4 })
 
-    Repo.delete_all(Location)
-    Locations.create_location(%{description: "home", user_id: 1, lat: 40.600577, long: -102.858589})
-
-    Alerts.update()
-
     Repo.delete_all(Post)
     Repo.insert!(%Post{ body: "test post 1", alert_id: 37, user_id: 1 })
     Repo.insert!(%Post{ body: "test post 2", alert_id: 37, user_id: 2 })
