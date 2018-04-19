@@ -12,7 +12,8 @@ defmodule StormchatWeb.UserController do
   #   render(conn, "index.json", users: users)
   # end
 
-  def create(conn, %{"user" => user_params}) do
+  # creates a new user and a default current_location for this new user
+  def create(conn, %{"user_params" => user_params}) do
     with {:ok, %User{} = user} <- Users.create_user(user_params) do
       conn
       |> put_status(:created)
@@ -34,6 +35,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -44,7 +46,7 @@ defmodule StormchatWeb.UserController do
       {:ok, user_id} ->
         user = Users.get_user(id)
 
-        if user == nil || id != user_id do
+        if user == nil || user.id != user_id do
           IO.inspect({:bad_match, id, user_id})
           raise "hax!"
         end
@@ -54,6 +56,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end
@@ -64,7 +67,7 @@ defmodule StormchatWeb.UserController do
       {:ok, user_id} ->
         user = Users.get_user!(id)
 
-        if user == nil || id != user_id do
+        if user == nil || user.id != user_id do
           IO.inspect({:bad_match, id, user_id})
           raise "hax!"
         end
@@ -74,6 +77,7 @@ defmodule StormchatWeb.UserController do
         end
       _else ->
         conn
+        |> put_status(401)
         |> render(conn, %{error: "TOKEN_UNAUTHORIZED"})
     end
   end

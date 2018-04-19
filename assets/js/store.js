@@ -2,55 +2,45 @@ import { createStore, combineReducers } from 'redux';
 import deepFreeze from 'deep-freeze';
 
 /*
-*  state layout:
-*  {
-*   users: [... Users ...],
-*   user: {
-*     name: string,
-*     email: string,
-*     phone: string
-*   }
-*   new_user_form: {
-*     name: string,
-*     email: string,
-*     phone: string,
-*     password: string,
-*     password_confirmation: string
-*   },
-*   edit_user_form: {
-*     id: integer,
-*     name: string,
-*     email: string,
-*     phone: string,
-*     password: string,
-*     password_confirmation: string
-*   },
-*   token: {
-*     token: string,
-*     user_id: integer
-*   },
-*   login: {
-*     email: string,
-*     password: string,
-	  msg: "",
-*   }
-* }
-* */
+ * state layout:
+ * {
+ *   user: {
+ *     user_id: null,
+ *     name: "",
+ *     token: null
+ *   },
+ *   login: {
+ *     email: "",
+ *     password: ""
+ *   },
+ *   signUp: {
+ *     name: "",
+ *     phone: "",
+ *     email: "",
+ *     password: "",
+ *     password_confirmation: ""
+ *   },
+ *   weather: null,
+ *   chat: "",
+ *   success: "",
+ *   error: ""
+ * }
+ */
 
-function users(state = [], action) {
+function user(state = null, action) {
   switch (action.type) {
-    case 'USERS_LIST':
-      return [...action.users];
-      case 'ADD_USER':
-        return [action.user, ...state];
-    case 'LOG_OUT':
-      return [];
+    case 'SET_USER':
+      return action.user;
+    case 'DELETE_USER':
+      return null;
+    case 'UPDATE_USER':
+      return Object.assign({}, state, action.user);
     default:
       return state;
   }
 }
 
-let empty_new_user_form = {
+let emptySignUp = {
   name: "",
   email: "",
   phone: "",
@@ -58,86 +48,145 @@ let empty_new_user_form = {
   password_confirmation: ""
 };
 
-function new_user_form(state = empty_new_user_form, action) {
+function signUp(state = emptySignUp, action) {
   switch (action.type) {
-    case 'UPDATE_NEW_USER_FORM':
+    case 'UPDATE_SIGNUP':
       return Object.assign({}, state, action.data);
-    case 'CLEAR_NEW_USER_FORM':
-      return empty_new_user_form;
-    case 'LOG_OUT':
-      return empty_new_user_form;
+    case 'RESET_FORMS':
+      return emptySignUp;
     default:
       return state;
   }
 }
 
-let empty_edit_user_form = {
-  id: "",
+let emptyLogin = {
+  email: "",
+  password: ""
+};
+
+function login(state = emptyLogin, action) {
+  switch (action.type) {
+    case 'UPDATE_LOGIN':
+      return Object.assign({}, state, action.data);
+    case 'RESET_FORMS':
+      return emptyLogin;
+    default:
+      return state;
+  }
+}
+
+let emptySettings = {
   name: "",
   email: "",
   phone: "",
   password: "",
-  password_confirmation: ""
-};
+  password_confirmation: "",
+  urgency: "",
+  severity: "",
+  certainty: ""
+}
 
-function edit_user_form(state = empty_edit_user_form, action) {
+function settings(state = emptySettings, action) {
   switch (action.type) {
-    case 'UPDATE_EDIT_USER_FORM':
+    case 'UPDATE_SETTINGS':
       return Object.assign({}, state, action.data);
-    case 'CLEAR_EDIT_USER_FORM':
-      return empty_edit_user_form;
-    case 'LOG_OUT':
-      return empty_edit_user_form;
+    case 'RESET_FORMS':
+      return emptySettings;
     default:
       return state;
   }
 }
 
-function token(state = null, action) {
+function weather(state = null, action) {
   switch (action.type) {
-    case 'SET_TOKEN':
-      return action.token;
-    case 'LOG_OUT':
+    case 'WEATHER':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
+function chat(state = "", action) {
+  switch (action.type) {
+    case 'UPDATE_CHAT':
+      return action.chat;
+    case 'RESET_FORMS':
+      return "";
+    default:
+      return state;
+  }
+}
+
+function currentLocation(state = {}, action) {
+  switch (action.type) {
+    case 'UPDATE_CURRENT_LOCATION':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
+function savedLocations(state = [], action) {
+  switch (action.type) {
+    case 'SAVED_LOCATIONS':
+      return action.data;
+    case 'ADD_LOCATION':
+      return state.concat(action.data);
+    case 'DELETE_LOCATION':
+      return state.filter((loc) => loc.id != action.id);
+    default:
+      return state;
+  }
+}
+
+function success(state = "", action) {
+  switch (action.type) {
+    case 'SUCCESS_MSG':
+      return action.msg;
+    case 'ERROR_MSG':
+      return "";
+    case 'RESET_SUCCESS':
+      return "";
+    default:
+      return state;
+  }
+}
+
+function error(state = "", action) {
+  switch (action.type) {
+    case 'ERROR_MSG':
+      return action.msg;
+    case 'SUCCESS_MSG':
+      return "";
+    case 'RESET_ERROR':
+      return "";
+    default:
+      return state;
+  }
+}
+
+function redirect(state = "/home", action) {
+  switch (action.type) {
+    // only set redirect if we have a path, null means redirect has been used
+    case 'SET_REDIRECT':
+      return state ? action.path : state;
+    case 'RESET_REDIRECT':
       return null;
     default:
       return state;
   }
 }
 
-let empty_login = {
-  email: "",
-  password: "",
-  msg: ""
-};
-
-function login(state = empty_login, action) {
-  switch (action.type) {
-    case 'UPDATE_LOGIN_FORM':
-      return Object.assign({}, state, action.data);
-    case 'LOG_OUT':
-      return Object.assign({}, empty_login, {msg: action.msg});
-    default:
-      return state;
-  }
-}
-
-function current_location(state = null, action) {
-	switch (action.type) {
-		case 'UPDATE_CURRENT_LOCATION':
-			return Object.assign({}, state, action.data);
-		default:
-			return state;
-	}
-}
-
 function root_reducer(state0, action) {
-  console.log("state0", state0)
-  // {tasks, users, form} is ES6 shorthand for
-  // {tasks: tasks, users: users, form: form}
-  let reducer = combineReducers({users, new_user_form, edit_user_form, token, login, current_location});
+  //console.log("state0", state0);
+  let reducer = combineReducers({
+    user, login, signUp, settings, weather, chat,
+    currentLocation, savedLocations, success, error,
+    redirect
+  });
   let state1 = reducer(state0, action);
-  console.log("state1", state1)
-  return deepFreeze(state1);
+  //console.log("state1", state1)
+    return deepFreeze(state1);
 };
 
 let store = createStore(root_reducer);

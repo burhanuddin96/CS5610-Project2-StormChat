@@ -1,8 +1,0 @@
-/* This file is for your main application css. */
-@import "bootstrap";
-
-#map {
-	height: 400px;
-	width: 100%;
-}
-

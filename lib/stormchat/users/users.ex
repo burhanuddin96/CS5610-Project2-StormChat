@@ -8,6 +8,9 @@ defmodule Stormchat.Users do
   alias Stormchat.Repo
   alias Stormchat.Users.User
   alias Stormchat.Alerts
+  alias Stormchat.Alerts.County
+  alias Stormchat.Locations.Location
+  alias Stormchat.Locations.LocationCounty
 
   @doc """
   Returns the list of users.

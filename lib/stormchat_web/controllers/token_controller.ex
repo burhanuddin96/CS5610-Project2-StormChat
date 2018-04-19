@@ -8,11 +8,17 @@ defmodule StormchatWeb.TokenController do
 
   # creates a token for future authentication
   def create(conn, %{"email" => email, "password" => password}) do
-    with {:ok, %User{} = user} <- Users.get_and_auth_user(email, password) do
-      token = Phoenix.Token.sign(conn, "auth token", user.id)
-      conn
-      |> put_status(:created)
-      |> render("token.json", user: user, token: token)
+    IO.puts("HERE")
+    case Users.get_and_auth_user(email, password) do
+      {:ok, user} ->
+        token = Phoenix.Token.sign(conn, "auth token", user.id)
+        conn
+        |> put_status(:created)
+        |> render("token.json", user: user, token: token)
+      _error ->
+        conn
+        |> put_status(401)
+        |> render("error.json")
     end
   end
 end

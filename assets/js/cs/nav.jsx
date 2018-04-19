@@ -1,104 +1,211 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { Form, FormGroup, NavItem, Input, Button } from 'reactstrap';
+import { NavLink } from 'react-router-dom';
+import { NavItem, Navbar, Modal, ModalHeader, ModalBody, ModalFooter,
+         Form, FormGroup, FormFeedback, Label, Input, Button,
+         Collapse, NavbarToggler } from 'reactstrap';
 import { connect } from 'react-redux';
 import api from '../api';
 
-let LoginForm = connect(({login}) => {return {login};})((props) => {
-  function update(ev) {
-    let tgt = $(ev.target);
+class UserNav extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {settings: false, errors: {}, expanded: false};
+  }
+
+  toggle() { this.setState({expanded: !this.state.expanded}); }
+
+  logOut() {
+    this.props.dispatch({type: 'DELETE_USER'});
+    this.props.dispatch({type: 'RESET_SUCCESS'});
+    this.props.dispatch({type: 'RESET_ERROR'});
+  }
+
+  showSettings() {
+    let user = this.props.user;
+    this.props.dispatch({
+      type: 'UPDATE_SETTINGS',
+      data: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        urgency: user.urgency,
+        severity: user.severity,
+        certainty: user.certainty,
+        password: '',
+        password_confirmation: ''
+      }
+    });
+    this.setState({settings: true, errors: {}});
+  }
+  hideSettings() { this.setState({settings: false}); }
+
+  feedback(field) {
+    if (this.state.errors[field]) {
+      return <FormFeedback>{this.state.errors[field][0]}</FormFeedback>;
+    }
+    return '';
+  }
+
+  update(ev) {
+    let target = $(ev.target);
     let data = {};
-    data[tgt.attr('name')] = tgt.val();
-    props.dispatch({
-      type: 'UPDATE_LOGIN_FORM',
-      data: data,
+    data[target.attr('name')] = target.val();
+    this.props.dispatch({
+      type: 'UPDATE_SETTINGS',
+      data: data
     });
   }
 
-  function create_token(ev) {
-    api.submit_login(props.login);
+  submitSettings() {
+    api.submitSettings(
+      this.props.user.user_id,
+      this.props.settings,
+      this.hideSettings.bind(this),
+      ((errors) => this.setState({errors: errors})).bind(this)
+    );
   }
 
-  return <div className="navbar-text">
-    <Form inline>
-      <FormGroup>
-        <Input type="text" name="email" placeholder="email"
-               value={props.login.name} onChange={update} />
-      </FormGroup>
-      <FormGroup>
-        <Input type="password" name="password" placeholder="password"
-               value={props.login.password} onChange={update} />
-      </FormGroup>
-      <Button onClick={create_token}>Log In</Button>
-    </Form>
-    <p className="blockquote-footer text-right">{props.login.msg}</p>
-  </div>;
-});
-
-let Session = connect(({edit_user_form}) => {return {edit_user_form};})((props) => {
-  return <div className="navbar-text">
-    Hello, {props.edit_user_form.name}!&nbsp;&nbsp;
-    <Logout />
-  </div>;
-});
-
-let Logout = connect((state) => {return {};})((props) => {
-  function submit_logout(ev) {
-    props.dispatch({
-      type: 'LOG_OUT',
-      msg: "Logged out successfully.",
-    });
+  deleteAccount() {
+    api.deleteAccount(this.props.user.user_id);
   }
 
-  return <Link to="/" onClick={submit_logout} className="primary">Logout</Link>;
-});
+  renderSettings() {
+    let show = this.showSettings.bind(this);
+    let hide = this.hideSettings.bind(this);
+    let update = this.update.bind(this);
+    return (
+      <NavItem>
+        <span onClick={show} color="link" className="nav-link">
+          Settings
+        </span>
+        <Modal isOpen={this.state.settings} toggle={hide}>
+          <ModalHeader toggle={hide}>Account Settings</ModalHeader>
+          <ModalBody>
+            <Form>
+              <h3>Notification Settings</h3>
+              <FormGroup>
+                <Label for="urgency">Alert Urgency</Label>
+                <Input type="select" name="urgency" onChange={update}
+                       value={this.props.settings.urgency}>
+                  <option>Immediate</option>
+                  <option>Expected</option>
+                  <option>Future</option>
+                  <option>Past</option>
+                </Input>
+                {this.feedback('urgency')}
+              </FormGroup>
+              <FormGroup>
+                <Label for="severity">Alert Severity</Label>
+                <Input type="select" name="severity" onChange={update}
+                       value={this.props.settings.severity}>
+                  <option>Extreme</option>
+                  <option>Severe</option>
+                  <option>Moderate</option>
+                  <option>Minor</option>
+                </Input>
+                {this.feedback('severity')}
+              </FormGroup>
+              <FormGroup>
+                <Label for="certainty">Alert Certainty</Label>
+                <Input type="select" name="certainty" onChange={update}
+                       value={this.props.settings.certainty}>
+                  <option>Observed</option>
+                  <option>Likely</option>
+                  <option>Possible</option>
+                  <option>Unlikely</option>
+                </Input>
+                {this.feedback('certainty')}
+              </FormGroup>
+              <hr/>
+              <h3>User Settings</h3>
+              <FormGroup>
+                <Label for="name">Display Name:</Label>
+                <Input type="text" name="name" placeholder="display name"
+                       value={this.props.settings.name}
+                       onChange={update} />
+                {this.feedback('name')}
+              </FormGroup>
+              <FormGroup>
+                <Label for="email">Email:</Label>
+                <Input type="email" name="email" placeholder="user@example.com"
+                       value={this.props.settings.email}
+                       onChange={update} />
+                {this.feedback('email')}
+              </FormGroup>
+              <FormGroup>
+                <Label for="phone">Phone Number:</Label>
+                <Input type="number" name="phone" placeholder="10-digit number"
+                       min="1000000000" max="9999999999"
+                       value={this.props.settings.phone}
+                       onChange={update} />
+                {this.feedback('phone')}
+              </FormGroup>
+              <FormGroup>
+                <Label for="password">Password:</Label>
+                <Input type="password" name="password" placeholder="password"
+                       onChange={update} />
+                {this.feedback('password')}
+              </FormGroup>
+              <FormGroup>
+                <Label for="password_confirmation">Confirm Password:</Label>
+                <Input type="password" name="password_confirmation"
+                       placeholder="confirm password" onChange={update} />
+                {this.feedback('password_confirmation')}
+              </FormGroup>
+              <hr/>
+              <h3>Delete Account</h3>
+              <Button onClick={this.deleteAccount.bind(this)}
+                    color="warning">Delete Account</Button>
+            </Form>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={hide} color="secondary">Cancel</Button>
+            <Button onClick={this.submitSettings.bind(this)}
+                    color="info">Submit</Button>
+          </ModalFooter>
+        </Modal>
+      </NavItem>
+    );
+  }
+
+  render() {
+    return (
+      <div className="ml-auto">
+        <NavbarToggler onClick={this.toggle.bind(this)} />
+        <Collapse isOpen={this.state.expanded} navbar>
+          <nav className="navbar-nav">
+            <NavItem>
+              <span className="navbar-text text-warning">
+                Hi, {this.props.user.name}!
+              </span>
+            </NavItem>
+            {this.renderSettings()}
+            <NavItem>
+              <span onClick={this.logOut.bind(this)}
+                    color="link" className="nav-link">
+                Log Out
+              </span>
+            </NavItem>
+          </nav>
+        </Collapse>
+      </div>
+    );
+  }
+}
+
+let ConnectedUserNav = connect(({user, settings}) => {return {user, settings};})(UserNav);
 
 function Nav(props) {
-  let to_my_tasks;
-  let path;
-  let nav_links;
-  let session_info;
-
-  // include navigation links only if a user has logged in
-  if (props.token) {
-    path = "/users/" + props.token.user_id;
-
-    nav_links =
-      <ul className="navbar-nav mr-auto">
-        <NavItem>
-          <NavLink to="/" exact={true} activeClassName="active"
-            className="nav-link">home</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to="/users" href="#" activeClassName="active"
-            className="nav-link">users</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={path} href="#" activeClassName="active"
-            className="nav-link">myAccount</NavLink>
-        </NavItem>
-      </ul>;
-    session_info = <Session token={props.token} />;
-  }
-  else {
-    nav_links = <span></span>;
-    session_info = <LoginForm />;
-  }
-
+  let navRight = props.user ? <ConnectedUserNav /> : '';
   return (
-    <nav className="navbar navbar-dark bg-dark navbar-expand mb-3 justify-content-between">
-      <span className="navbar-brand">StormChat</span>
-      {nav_links}
-      <span className="navbar-text text-right">{session_info}</span>
-    </nav>
+    <Navbar color="light" light expand="sm" fixed="top">
+      <NavLink className="navbar-brand" to="/home" exact={true}>
+        <i className="far fa-comments"></i> StormChat
+      </NavLink>
+      { navRight }
+    </Navbar>
   );
 }
 
-function state2props(state) {
-  return {
-    token: state.token,
-    current_user: state.current_user
-  };
-}
-
-export default connect(state2props)(Nav);
+export default connect(({user}) => {return {user};})(Nav);

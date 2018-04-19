@@ -7,30 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Hello Stormchat!</title>
+    <title>Hello StormChat!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-    <script>window.userToken = "<%= assigns[:token] %>";</script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
   </head>
 
   <body>
-    <div class="container">
-      <%= if get_flash(@conn, :info) do %>
-        <p class="alert alert-info" role="alert">
-          <%= get_flash(@conn, :info) %>
-        </p>
-      <% end %>
-      <%= if get_flash(@conn, :info) do %>
-        <p class="alert alert-danger" role="alert">
-          <%= get_flash(@conn, :error) %>
-        </p>
-      <% end %>
+    <main role="main">
+      <%= render @view_module, @view_template, assigns %>
+    </main>
 
-      <main role="main">
-        <%= render @view_module, @view_template, assigns %>
-      </main>
-
-    </div> <!-- /container -->
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-    
   </body>
 </html>

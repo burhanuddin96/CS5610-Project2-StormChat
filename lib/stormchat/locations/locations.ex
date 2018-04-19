@@ -15,7 +15,7 @@ defmodule Stormchat.Locations do
   def get_affected_polygons(alert_id) do
     Alerts.get_affected_fips(alert_id)
     |> Enum.map(fn(fc)->  CountyPolygons.get_county_polygons_by_fips(fc) end)
-    |> List.flatten()
+    #    |> List.flatten()
   end
 
   # returns a list of fips codes encompassing or nearby the given coordinates
@@ -117,9 +117,10 @@ defmodule Stormchat.Locations do
     # make sure location creation was successful
     case msg do
       :ok ->
-        lat = attrs[:lat]
-        long = attrs[:long]
-        user_id = attrs[:user_id]
+        lat = attrs["lat"]
+        long = attrs["long"]
+        user_id = attrs["user_id"]
+        IO.inspect(attrs)
 
         # get id of newly created location
         location_id = get_location_id(lat, long, user_id)
