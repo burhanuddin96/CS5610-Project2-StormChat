@@ -429,78 +429,94 @@ defmodule Stormchat.Alerts do
 
   # gets the active alerts for the given lat and long
   def get_active_by_latlong(lat, long) do
-    fips_codes = Locations.get_fips_by_latlong(lat, long)
-    now = DateTime.utc_now()
-    al = alert_limit()
+    if lat == "undefined" || long == "undefined" do
+      []
+    else
+      fips_codes = Locations.get_fips_by_latlong(lat, long)
+      now = DateTime.utc_now()
+      al = alert_limit()
 
-    query =
-      from a in Alert,
-        join: c in County, on: c.alert_id == a.id,
-        where: c.fips_code in ^fips_codes and a.expires > ^now,
-        distinct: a.id,
-        order_by: [desc: a.inserted_at],
-        limit: ^al,
-        select: a
+      query =
+        from a in Alert,
+          join: c in County, on: c.alert_id == a.id,
+          where: c.fips_code in ^fips_codes and a.expires > ^now,
+          distinct: a.id,
+          order_by: [desc: a.inserted_at],
+          limit: ^al,
+          select: a
 
-    Repo.all(query)
+      Repo.all(query)
+    end
   end
 
   # gets the next chunk of older active alerts for the given lat and long
   def get_older_active_by_latlong(lat, long, oldest_id) do
-    fips_codes = Locations.get_fips_by_latlong(lat, long)
-    now = DateTime.utc_now()
-    al = alert_limit()
-    oldest_alert = get_alert(oldest_id)
-    inserted_at = oldest_alert.inserted_at
+    if lat == "undefined" || long == "undefined" || oldest_id == "undefined" do
+      []
+    else
+      fips_codes = Locations.get_fips_by_latlong(lat, long)
+      now = DateTime.utc_now()
+      al = alert_limit()
+      oldest_alert = get_alert(oldest_id)
+      inserted_at = oldest_alert.inserted_at
 
-    query =
-      from a in Alert,
-        join: c in County, on: c.alert_id == a.id,
-        where: c.fips_code in ^fips_codes and a.expires > ^now and a.inserted_at < ^inserted_at,
-        distinct: a.id,
-        order_by: [desc: a.inserted_at],
-        limit: ^al,
-        select: a
+      query =
+        from a in Alert,
+          join: c in County, on: c.alert_id == a.id,
+          where: c.fips_code in ^fips_codes and a.expires > ^now and a.inserted_at < ^inserted_at,
+          distinct: a.id,
+          order_by: [desc: a.inserted_at],
+          limit: ^al,
+          select: a
 
-    Repo.all(query)
+      Repo.all(query)
+    end
   end
 
   # gets the historical alerts for the given lat and long
   def get_historical_by_latlong(lat, long) do
-    fips_codes = Locations.get_fips_by_latlong(lat, long)
-    now = DateTime.utc_now()
-    al = alert_limit()
+    if lat == "undefined" || long == "undefined" do
+      []
+    else
+      fips_codes = Locations.get_fips_by_latlong(lat, long)
+      now = DateTime.utc_now()
+      al = alert_limit()
 
-    query =
-      from a in Alert,
-        join: c in County, on: c.alert_id == a.id,
-        where: c.fips_code in ^fips_codes and a.expires <= ^now,
-        distinct: a.id,
-        order_by: [desc: a.inserted_at],
-        limit: ^al,
-        select: a
+      query =
+        from a in Alert,
+          join: c in County, on: c.alert_id == a.id,
+          where: c.fips_code in ^fips_codes and a.expires <= ^now,
+          distinct: a.id,
+          order_by: [desc: a.inserted_at],
+          limit: ^al,
+          select: a
 
-    Repo.all(query)
+      Repo.all(query)
+    end
   end
 
   # gets the next chunk of older historical alerts for the given lat and long
   def get_older_historical_by_latlong(lat, long, oldest_id) do
-    fips_codes = Locations.get_fips_by_latlong(lat, long)
-    now = DateTime.utc_now()
-    al = alert_limit()
-    oldest_alert = get_alert(oldest_id)
-    inserted_at = oldest_alert.inserted_at
+    if lat == "undefined" || long == "undefined" || oldest_id == "undefined" do
+      []
+    else
+      fips_codes = Locations.get_fips_by_latlong(lat, long)
+      now = DateTime.utc_now()
+      al = alert_limit()
+      oldest_alert = get_alert(oldest_id)
+      inserted_at = oldest_alert.inserted_at
 
-    query =
-      from a in Alert,
-        join: c in County, on: c.alert_id == a.id,
-        where: c.fips_code in ^fips_codes and a.expires <= ^now and a.inserted_at < ^inserted_at,
-        distinct: a.id,
-        order_by: [desc: a.inserted_at],
-        limit: ^al,
-        select: a
+      query =
+        from a in Alert,
+          join: c in County, on: c.alert_id == a.id,
+          where: c.fips_code in ^fips_codes and a.expires <= ^now and a.inserted_at < ^inserted_at,
+          distinct: a.id,
+          order_by: [desc: a.inserted_at],
+          limit: ^al,
+          select: a
 
-    Repo.all(query)
+      Repo.all(query)
+    end
   end
 
   @doc """
