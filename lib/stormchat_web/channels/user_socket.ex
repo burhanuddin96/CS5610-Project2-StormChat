@@ -22,7 +22,7 @@ defmodule StormchatWeb.UserSocket do
   def connect(%{"token" => token}, socket) do
     case Phoenix.Token.verify(socket, "auth token", token, max_age: 86400) do
       {:ok, user_id} ->
-        {:ok, assign(socket, :user, user_id)}
+        {:ok, assign(socket, :user_id, user_id)}
       {:error, reason} ->
         :error
     end
