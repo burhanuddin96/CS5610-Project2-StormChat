@@ -15,7 +15,7 @@ defmodule Stormchat.Locations do
   def get_affected_polygons(alert_id) do
     Alerts.get_affected_fips(alert_id)
     |> Enum.map(fn(fc)->  CountyPolygons.get_county_polygons_by_fips(fc) end)
-    |> List.flatten()
+    #    |> List.flatten()
   end
 
   # returns a list of fips codes encompassing or nearby the given coordinates

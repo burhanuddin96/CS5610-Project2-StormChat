@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Input } from 'reactstrap';
+import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { Socket } from 'phoenix';
 import Spinner from './spinner';
-import HomeMap from './homemap';
+import AlertMap from './alertmap';
 import api from '../api';
 
 class Chat extends React.Component {
@@ -12,6 +12,7 @@ class Chat extends React.Component {
     super(props);
     this.state = {
       detail: false,
+      message: "",
       alert: {},
       polygons: [],
       user_count: 0,
@@ -36,6 +37,24 @@ class Chat extends React.Component {
     console.log("ALERT", alertInfo);
     alertInfo.posts = alertInfo.posts.reverse();
     this.setState(alertInfo);
+    if (alertInfo.posts.length > 0) {
+      console.log('adding handler');
+      $(window).one('scroll', this.handleScroll.bind(this));
+    }
+    this.scrollToBottom();
+  }
+
+  handleScroll() {
+    if ($('html').scrollTop() == 0) {
+      console.log('handling');
+      this.channel.push('older', {'oldest_id': this.state.posts[0].id})
+        .receive("ok", ((msg) => {
+          console.log("OLD_MSG", msg);
+          let posts = msg.posts.reverse();
+          this.setState({posts: posts.concat(this.state.posts)});
+        }));
+    }
+    $(window).one('scroll', this.handleScroll.bind(this));
   }
 
   gotError(error) {
@@ -46,7 +65,6 @@ class Chat extends React.Component {
   }
 
   newMessage(msg) {
-    console.log("NEW_MSG", msg);
     this.setState({posts: this.state.posts.concat(msg.post)});
   }
 
@@ -54,15 +72,30 @@ class Chat extends React.Component {
 
   sendMessage() {
     this.props.dispatch({type: 'RESET_ERROR'});
-    let input = $('#chat-field')[0];
-    input = $(input).val();
-    this.channel.push('post', {'body': input})
-      .receive("error", this.gotError.bind(this))
-      .receive("ok", ((msg) => {
-        console.log(msg);
-        this.newMessage(msg);
-        $($('#chat-field')[0]).val("");
-      }).bind(this));
+    if (this.state.message) {
+      this.channel.push('post', {'body': this.state.message})
+        .receive("error", this.gotError.bind(this))
+        .receive("ok", ((msg) => {
+          console.log(msg);
+          this.newMessage(msg);
+          this.setState({message: ""});
+          this.scrollToBottom();
+        }).bind(this));
+    }
+  }
+
+  updateMessage(ev) { this.setState({message: $(ev.target).val()}); }
+
+  scrollToTop() {
+    $('html, body').stop().animate({
+        scrollTop: 0
+    }, 500);
+  }
+
+  scrollToBottom() {
+    $('html, body').stop().animate({
+        scrollTop: $(document).height()
+    }, 500);
   }
 
   render() {
@@ -75,22 +108,86 @@ class Chat extends React.Component {
     });
 
     return (
-      <div id="chat" className="container">
-        <div id="chat-messages">
-          {messages}
-        </div>
-        <div id="chat-footer" className="row">
-          <Input name="chat-field"
-                 type="text"
-                 id="chat-field"
-                 placeholder="Send a message..."
-                 className="mx-3 col" />
-          <Button onClick={this.sendMessage.bind(this)}
-                  color="info" className="mr-3">
-            Send
+      <div id="chat">
+        <div id="chat-buttons">
+          <Button color="warning"
+                  onClick={this.toggleDetail.bind(this)}>
+            <i className="fa fa-info"></i>
+          </Button>
+          <Button color="warning" outline
+                  className="bg-white"
+                  onClick={this.scrollToTop.bind(this)}>
+            <i className="fa fa-arrow-up"></i>
+          </Button>
+          <Button color="warning" outline
+                  className="bg-white"
+                  onClick={this.scrollToBottom.bind(this)}>
+            <i className="fa fa-arrow-down"></i>
           </Button>
         </div>
+        <div id="chat-messages" className="container">
+          <div className="row mb-3"><Spinner /></div>
+          {messages}
+        </div>
+        <div id="chat-footer" className="row p-3 bg-light">
+          <div className="container">
+            <div className="row">
+              <Input name="chat-field"
+                     type="text"
+                     id="chat-field"
+                     placeholder="Send a message..."
+                     onChange={this.updateMessage.bind(this)}
+                     value={this.state.message}
+                     className="mx-3 col" />
+              <Button onClick={this.sendMessage.bind(this)}
+                      disabled={this.state.message == ""}
+                      color="info" className="mr-3">
+                Send
+              </Button>
+            </div>
+          </div>
+        </div>
+        {this.renderDetails()}
       </div>
+    );
+  }
+
+  renderDetails() {
+    let toggle = this.toggleDetail.bind(this);
+    let alertInfo = this.state.alert;
+    return (
+      <Modal isOpen={this.state.detail} toggle={toggle}>
+        <ModalHeader toggle={toggle} className="text-warning">
+          {alertInfo.event}
+        </ModalHeader>
+        <ModalBody>
+          <h4>{alertInfo.title}</h4>
+          <hr/>
+          <h4><span className="text-info">Users Affected:</span> {this.state.user_count}</h4>
+          <hr/>
+          <h4 className="text-info">Categories</h4>
+          <p>
+            <strong>Urgency:</strong> {alertInfo.urgency}<br/>
+            <strong>Severity:</strong> {alertInfo.severity}<br/>
+            <strong>Certainty:</strong> {alertInfo.certainty}
+          </p>
+          <hr/>
+          <h4 className="text-info">Areas Affected</h4>
+          <p>{alertInfo.areaDesc}</p>
+          <div className="row" style={{height: "400px"}}>
+            <AlertMap polygons={this.state.polygons} />
+          </div>
+          <hr/>
+          <h4 className="text-info">Description</h4>
+          <p>{alertInfo.description}</p>
+          <hr/>
+          <h4 className="text-info">Instructions</h4>
+          <p>{alertInfo.instruction}</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={toggle} color="info">Close</Button>
+        </ModalFooter>
+      </Modal>
     );
   }
 }

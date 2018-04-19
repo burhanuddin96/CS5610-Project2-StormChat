@@ -20,6 +20,11 @@ class HomeMap extends React.Component {
     if (this.props.isGeolocationAvailable && this.props.isGeolocationEnabled) {
       let interval = setInterval(this.updateCurrentLocation.bind(this), 100);
       this.setState({interval: interval});
+    } else {
+      this.props.dispatch({
+        type: 'ERROR_MSG',
+        msg: 'Cannot get current location. Current location features will not be available.'
+      });
     }
   }
 

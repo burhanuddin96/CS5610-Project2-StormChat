@@ -165,12 +165,13 @@ function error(state = "", action) {
   }
 }
 
-function redirect(state = "", action) {
+function redirect(state = "/home", action) {
   switch (action.type) {
+    // only set redirect if we have a path, null means redirect has been used
     case 'SET_REDIRECT':
-      return action.path;
+      return state ? action.path : state;
     case 'RESET_REDIRECT':
-      return "";
+      return null;
     default:
       return state;
   }

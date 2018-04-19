@@ -2,7 +2,7 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-let AuthRoute = connect(({user}) => {return {user};})((props) => {
+let AuthRoute = connect(({user, redirect}) => {return {user, redirect};})((props) => {
   if (props.user) {
     props.dispatch({type: 'RESET_REDIRECT'});
   } else {

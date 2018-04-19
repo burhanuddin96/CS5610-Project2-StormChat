@@ -199,9 +199,9 @@ let ConnectedUserNav = connect(({user, settings}) => {return {user, settings};})
 function Nav(props) {
   let navRight = props.user ? <ConnectedUserNav /> : '';
   return (
-    <Navbar color="light" light expand="sm">
+    <Navbar color="light" light expand="sm" fixed="top">
       <NavLink className="navbar-brand" to="/home" exact={true}>
-        StormChat
+        <i className="far fa-comments"></i> StormChat
       </NavLink>
       { navRight }
     </Navbar>

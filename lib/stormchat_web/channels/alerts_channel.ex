@@ -54,7 +54,12 @@ defmodule StormchatWeb.AlertsChannel do
 
   # returns the given post plus the posts_limit - 1 previous posts
   def handle_in("older",  %{"oldest_id" => oldest_id}, socket) do
-    {:reply, {:ok, %{ "posts" => Posts.get_older_posts(oldest_id)}}, socket}
+    {:reply, {:ok, %{
+      "posts" => StormchatWeb.PostView.render(
+        "index.json",
+        %{posts: Posts.get_older_posts(oldest_id)}
+      ).data
+    }}, socket}
   end
 
   # # Channels can be used in a request/response fashion

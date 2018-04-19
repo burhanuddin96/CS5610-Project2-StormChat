@@ -41,7 +41,7 @@ class StormChatCore extends React.Component {
     return (
       <div>
         <Nav />
-        <div className="mt-3 container-fluid">
+        <div id="page-body" className="container-fluid">
           <Alerts />
           <Switch>
             <AuthRoute path="/home" exact={true} render={() => <Home />} />

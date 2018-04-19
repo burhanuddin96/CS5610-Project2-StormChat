@@ -21,7 +21,9 @@ function SearchLocation(props) {
     <div className="row">
       <Input name="name" type="text" id="search" placeholder="Search"
              className="col mx-3"/>
-      <Button onClick={submit} outline color="info" className="mr-3">+</Button>
+      <Button onClick={submit} outline color="info" className="mr-3">
+        <i className="fa fa-plus"></i>
+      </Button>
     </div>
   );
 }

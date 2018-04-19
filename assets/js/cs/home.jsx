@@ -37,11 +37,11 @@ class Home extends React.Component {
         </div>
         <div className="m-3">
           <div className="row">
-            <div className="col-7">
+            <div className="col-12 col-md-6" style={{height: "400px"}}>
               <HomeMap />
             </div>
-            <div className="col-5">
-              <div className="border border-info rounded ml-3 p-3">
+            <div className="col-12 col-md-6">
+              <div className="border border-info rounded ml-0 ml-md-3 p-3">
                 <h3 className="d-inline-block">Alerts by Location</h3>
                 <Button color="info" className="float-right"
                         onClick={this.toggleEdit.bind(this)}>
@@ -58,10 +58,7 @@ class Home extends React.Component {
   }
 
   renderForm() {
-    if (this.state.editing) {
-      return <SearchLocation />;
-    }
-    return '';
+    return <SearchLocation />;
   }
 
   renderLocations() {
@@ -190,10 +187,12 @@ class Location extends React.Component {
       );
     } else {
       button = (
-        <span className="float-right btn-link text-info"
+        <h4 className="float-right btn-link text-info m-0 pointer"
               onClick={this.toggle.bind(this)}>
-          {this.state.expanded ? "Hide" : "Show"}
-        </span>
+          { this.state.expanded ?
+            <i className="fa fa-chevron-up"></i> :
+            <i className="fa fa-chevron-down"></i> }
+        </h4>
       );
     }
 
