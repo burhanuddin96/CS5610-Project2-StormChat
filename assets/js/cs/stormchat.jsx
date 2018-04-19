@@ -47,8 +47,6 @@ class StormChatCore extends React.Component {
             <AuthRoute path="/home" exact={true} render={() => <Home />} />
             <AuthRoute path="/alert/:alert_id" exact={true}
                        render={({match}) => <Chat alert_id={match.params.alert_id} />} />
-            <Route path="/:alert_id" exact={true}
-                   render={({match}) => <Splash alert_id={match.params.alert_id} />} />
             <Route path="/" exact={true} render={() => <Splash />} />
           </Switch>
         </div>

@@ -3,6 +3,15 @@ import { Redirect, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 let AuthRoute = connect(({user}) => {return {user};})((props) => {
+  if (props.user) {
+    props.dispatch({type: 'RESET_REDIRECT'});
+  } else {
+    props.dispatch({
+      type: 'SET_REDIRECT',
+      path: props.location.pathname
+    });
+  }
+
   return (
     <Route path={props.path}
            render={

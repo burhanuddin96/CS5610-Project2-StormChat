@@ -11,8 +11,7 @@ class Splash extends React.Component {
     this.state = {
       state: 1,
       errors: {},
-      redirect: false,
-      alert_id: this.props.alert_id
+      redirect: false
     };
   }
 
@@ -67,10 +66,7 @@ class Splash extends React.Component {
 
   render() {
     if (this.state.redirect) {
-      if (this.state.alert_id) {
-        return <Redirect to={`/alert/${this.state.alert_id}`} />;
-      }
-      return <Redirect to="/home" />
+      return <Redirect to={this.props.redirect ? this.props.redirect : "/home"} />;
     }
 
     let body = '';

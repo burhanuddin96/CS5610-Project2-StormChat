@@ -38,6 +38,7 @@ defmodule Stormchat.Posts do
         select: p
 
     Repo.all(query)
+    |> Repo.preload(:user)
   end
 
   # returns a list of the the previous chunk of older posts, including the given post
@@ -55,6 +56,7 @@ defmodule Stormchat.Posts do
         select: p
 
     Repo.all(query)
+    |> Repo.preload(:user)
   end
 
   @doc """
@@ -88,9 +90,13 @@ defmodule Stormchat.Posts do
 
   """
   def create_post(attrs \\ %{}) do
-    %Post{}
-    |> Post.changeset(attrs)
-    |> Repo.insert()
+    resp = %Post{}
+           |> Post.changeset(attrs)
+           |> Repo.insert()
+    case resp do
+      {:ok, struct} -> {:ok, Repo.preload(struct, :user)}
+      _ -> resp
+    end
   end
 
   @doc """

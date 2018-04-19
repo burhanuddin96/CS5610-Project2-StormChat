@@ -34,6 +34,7 @@ class Chat extends React.Component {
 
   gotAlert(alertInfo) {
     console.log("ALERT", alertInfo);
+    alertInfo.posts = alertInfo.posts.reverse();
     this.setState(alertInfo);
   }
 
@@ -44,15 +45,24 @@ class Chat extends React.Component {
     });
   }
 
-  newMessage(msg) { this.setState({posts: this.state.posts.concat(msg.post)}); }
+  newMessage(msg) {
+    console.log("NEW_MSG", msg);
+    this.setState({posts: this.state.posts.concat(msg.post)});
+  }
 
   toggleDetail() { this.setState({detail: !this.state.detail}); }
 
   sendMessage() {
+    this.props.dispatch({type: 'RESET_ERROR'});
     let input = $('#chat-field')[0];
     input = $(input).val();
     this.channel.push('post', {'body': input})
-      .receive("error", this.gotError.bind(this));
+      .receive("error", this.gotError.bind(this))
+      .receive("ok", ((msg) => {
+        console.log(msg);
+        this.newMessage(msg);
+        $($('#chat-field')[0]).val("");
+      }).bind(this));
   }
 
   render() {
@@ -60,6 +70,7 @@ class Chat extends React.Component {
       return <Message key={post.id}
                       message={post.body}
                       user={post.user}
+                      timestamp={post.timestamp}
                       mine={post.user.id == this.props.user.user_id}/>;
     });
 
@@ -85,18 +96,26 @@ class Chat extends React.Component {
 }
 
 function Message(params) {
-  let classes = "border row";
+  let color = params.mine ? "warning" : "info";
+  let classes = `border border-${color} mb-3 text-secondary message`;
   if (params.mine) {
-    classes += "border-info text-info my-message";
-  } else {
-    classes += "border-secondary text-secondary other-message";
+    classes += " my-message";
   }
 
+  let timestamp = new Date(`${params.timestamp}Z`).toLocaleString();
+
   return (
-    <div className={classes}>
-      <h6>{params.user.name}</h6>
-      <br/>
-      <small>{params.message}</small>
+    <div className="row">
+      <div className="col">
+        <div className={classes}>
+          <p className="m-2">
+            <strong className={`text-${color}`}>{params.user.name}</strong>
+            <small className="float-right">{timestamp}</small>
+            <br/>
+            {params.message}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

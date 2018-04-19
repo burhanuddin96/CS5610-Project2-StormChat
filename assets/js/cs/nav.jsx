@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { NavItem, Navbar, Modal, ModalHeader, ModalBody, ModalFooter,
-         Form, FormGroup, FormFeedback, Label, Input, Button } from 'reactstrap';
+         Form, FormGroup, FormFeedback, Label, Input, Button,
+         Collapse, NavbarToggler } from 'reactstrap';
 import { connect } from 'react-redux';
 import api from '../api';
 
@@ -9,8 +10,10 @@ class UserNav extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {settings: false, errors: {}};
+    this.state = {settings: false, errors: {}, expanded: false};
   }
+
+  toggle() { this.setState({expanded: !this.state.expanded}); }
 
   logOut() {
     this.props.dispatch({type: 'DELETE_USER'});
@@ -168,20 +171,25 @@ class UserNav extends React.Component {
 
   render() {
     return (
-      <nav className="ml-auto navbar-nav">
-        <NavItem>
-          <span className="navbar-text text-warning">
-            Hi, {this.props.user.name}!
-          </span>
-        </NavItem>
-        {this.renderSettings()}
-        <NavItem>
-          <span onClick={this.logOut.bind(this)}
-                color="link" className="nav-link">
-            Log Out
-          </span>
-        </NavItem>
-      </nav>
+      <div className="ml-auto">
+        <NavbarToggler onClick={this.toggle.bind(this)} />
+        <Collapse isOpen={this.state.expanded} navbar>
+          <nav className="navbar-nav">
+            <NavItem>
+              <span className="navbar-text text-warning">
+                Hi, {this.props.user.name}!
+              </span>
+            </NavItem>
+            {this.renderSettings()}
+            <NavItem>
+              <span onClick={this.logOut.bind(this)}
+                    color="link" className="nav-link">
+                Log Out
+              </span>
+            </NavItem>
+          </nav>
+        </Collapse>
+      </div>
     );
   }
 }

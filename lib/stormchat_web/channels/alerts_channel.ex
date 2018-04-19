@@ -38,14 +38,13 @@ defmodule StormchatWeb.AlertsChannel do
       "body" => body
     }
 
-    IO.inspect(post_attrs)
     {msg, resp} = Posts.create_post(post_attrs)
-    IO.inspect(msg)
-    IO.inspect(resp)
 
     case msg do
       :ok ->
-        payload = %{"post" => resp}
+        payload = %{
+          "post" => StormchatWeb.PostView.render("post.json", %{post: resp})
+        }
         broadcast_from socket, "new_post", payload
         {:reply, {:ok, payload}, socket}
       _error ->

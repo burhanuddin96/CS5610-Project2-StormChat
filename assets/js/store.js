@@ -165,12 +165,23 @@ function error(state = "", action) {
   }
 }
 
+function redirect(state = "", action) {
+  switch (action.type) {
+    case 'SET_REDIRECT':
+      return action.path;
+    case 'RESET_REDIRECT':
+      return "";
+    default:
+      return state;
+  }
+}
 
 function root_reducer(state0, action) {
   //console.log("state0", state0);
   let reducer = combineReducers({
     user, login, signUp, settings, weather, chat,
-    currentLocation, savedLocations, success, error
+    currentLocation, savedLocations, success, error,
+    redirect
   });
   let state1 = reducer(state0, action);
   //console.log("state1", state1)

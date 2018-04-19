@@ -11,7 +11,14 @@ defmodule StormchatWeb.PostView do
   end
 
   def render("post.json", %{post: post}) do
-    %{id: post.id,
-      body: post.body}
+    %{
+      id: post.id,
+      body: post.body,
+      timestamp: post.inserted_at,
+      user: %{
+        id: post.user.id,
+        name: post.user.name
+      }
+    }
   end
 end

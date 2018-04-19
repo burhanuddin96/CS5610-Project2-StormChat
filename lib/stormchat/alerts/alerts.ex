@@ -277,7 +277,7 @@ defmodule Stormchat.Alerts do
   # 1600 total character limit broken into 160 character chucks
   # with each chunk being its own message
   def message_text(alert) do
-    alert.title <> " http://www.daskivich.com"
+    alert.title <> " http://www.daskivich.com/alert/#{alert.id}"
   end
 
   def send_sms(to, text) do
