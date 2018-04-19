@@ -112,7 +112,7 @@ defmodule Stormchat.Users do
 
   # notify's Stormchat admins that a new/updated phone number must be verified
   def notify_admin(user) do
-    body = "user (id:" <> user.id <> ") needs phone number verified (" <> user.phone <> ")"
+    body = "user (id:" <> Integer.to_string(user.id) <> ") needs phone number verified (" <> user.phone <> ")"
     Alerts.send_sms("8572721850", body)
     Alerts.send_sms("8578694172", body)
     Alerts.send_sms("6616458377", body)
