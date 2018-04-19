@@ -89,8 +89,6 @@ defmodule Stormchat.Alerts do
 
   # converts an http response to xml
   def http_to_xml(resp) do
-    # IO.inspect(resp)
-
     # strategy for catching xmerl_scan exits via OvermindDL1
     # https://elixirforum.com/t/rescuing-from-an-erlang-error/1132/2
     try do
